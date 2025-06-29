@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from app.database import SessionLocal
-from app.models import Table, Restaurant
+from app.models import Restaurant, Table
 
 def seed_tables():
     db = SessionLocal()
@@ -8,53 +8,38 @@ def seed_tables():
         # Получаем все рестораны
         restaurants = db.query(Restaurant).all()
         
-        if not restaurants:
-            print("Нет ресторанов в базе данных. Сначала создайте рестораны.")
-            return
-        
-        # Добавляем столики для каждого ресторана
         for restaurant in restaurants:
-            # Столики на 2 персоны
-            for i in range(5):
-                table = Table(
-                    restaurant_id=restaurant.id,
-                    seats=2,
-                    is_available=True
-                )
-                db.add(table)
+            # Проверяем, есть ли уже столики у этого ресторана
+            existing_tables = db.query(Table).filter(Table.restaurant_id == restaurant.id).count()
             
-            # Столики на 4 персоны
-            for i in range(3):
-                table = Table(
-                    restaurant_id=restaurant.id,
-                    seats=4,
-                    is_available=True
-                )
-                db.add(table)
-            
-            # Столики на 6 персон
-            for i in range(2):
-                table = Table(
-                    restaurant_id=restaurant.id,
-                    seats=6,
-                    is_available=True
-                )
-                db.add(table)
-            
-            # Столик на 8 персон
-            table = Table(
-                restaurant_id=restaurant.id,
-                seats=8,
-                is_available=True
-            )
-            db.add(table)
+            if existing_tables == 0:
+                # Добавляем столики разной вместимости
+                tables_data = [
+                    {"seats": 2, "is_available": True},
+                    {"seats": 2, "is_available": True},
+                    {"seats": 4, "is_available": True},
+                    {"seats": 4, "is_available": True},
+                    {"seats": 6, "is_available": True},
+                    {"seats": 8, "is_available": True},
+                ]
+                
+                for table_data in tables_data:
+                    db_table = Table(
+                        restaurant_id=restaurant.id,
+                        seats=table_data["seats"],
+                        is_available=table_data["is_available"]
+                    )
+                    db.add(db_table)
+                
+                print(f"Добавлено {len(tables_data)} столиков для ресторана '{restaurant.name}'")
         
         db.commit()
-        print(f"Добавлено столиков для {len(restaurants)} ресторанов")
+        print("Столики успешно добавлены!")
         
     except Exception as e:
         print(f"Ошибка при добавлении столиков: {e}")
-        db.rollback()
+        import traceback
+        traceback.print_exc()
     finally:
         db.close()
 

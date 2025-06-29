@@ -55,7 +55,7 @@ def create_booking(booking: BookingCreate, db: Session = Depends(get_db), user=D
     
     # Проверяем, что количество гостей не превышает вместимость столика
     table = db.query(Table).filter(Table.id == booking.table_id).first()
-    if booking.guests_count > table.seats:
+    if booking.guests > table.seats:
         raise HTTPException(status_code=400, detail=f"Table can only accommodate {table.seats} guests")
     
     db_booking = Booking(
@@ -63,7 +63,7 @@ def create_booking(booking: BookingCreate, db: Session = Depends(get_db), user=D
         table_id=booking.table_id,
         date=booking.date,
         time=booking.time,
-        guests_count=booking.guests_count,
+        guests=booking.guests,
         status=BookingStatus.active
     )
     db.add(db_booking)
@@ -99,7 +99,7 @@ def update_booking(booking_id: int, data: BookingCreate, db: Session = Depends(g
     
     # Проверяем вместимость столика
     table = db.query(Table).filter(Table.id == data.table_id).first()
-    if data.guests_count > table.seats:
+    if data.guests > table.seats:
         raise HTTPException(status_code=400, detail=f"Table can only accommodate {table.seats} guests")
     
     for key, value in data.dict().items():

@@ -1,9 +1,10 @@
 from sqlalchemy import Column, Integer, String, Enum
-import enum
+from sqlalchemy.orm import relationship
+from enum import Enum as PyEnum
 from app.database import Base
 
 
-class UserRole(enum.Enum):
+class UserRole(str, PyEnum):
     guest = "guest"
     user = "user"
     admin = "admin"
@@ -17,3 +18,8 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     name = Column(String, nullable=False)
     role = Column(Enum(UserRole), default=UserRole.user, nullable=False)
+    
+    # relationships
+    reviews = relationship("Review", back_populates="user", cascade="all, delete-orphan")
+    restaurants = relationship("Restaurant", back_populates="owner", cascade="all, delete-orphan")
+    bookings = relationship("Booking", back_populates="user", cascade="all, delete-orphan")

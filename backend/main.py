@@ -6,13 +6,14 @@ from app.routers import user, restaurant, table, booking, auth, review
 
 app = FastAPI()
 
-# Настройка CORS
+# Настройка CORS - более подробная конфигурация
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Разрешаем запросы с фронтенда
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],  # Разрешаем запросы с фронтенда
     allow_credentials=True,
-    allow_methods=["*"],  # Разрешаем все HTTP методы
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],  # Явно указываем методы
     allow_headers=["*"],  # Разрешаем все заголовки
+    expose_headers=["*"],  # Разрешаем доступ к заголовкам ответа
 )
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
