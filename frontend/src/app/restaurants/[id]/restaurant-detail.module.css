@@ -292,7 +292,7 @@
 }
 
 .input::placeholder {
-  color: #999; /* Цвет placeholder */
+  color: #999;
 }
 
 .input:focus, .select:focus {

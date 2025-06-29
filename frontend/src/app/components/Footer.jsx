@@ -24,7 +24,7 @@ export default function Footer() {
                 </div>
                 <div className={styles.footerSection}>
                     <h3>Контакты</h3>
-                    <p>📧 info@vladivostok-restaurants.ru</p>
+                    <p>📧 mistrekov.sr@students.dvfu.ru</p>
                     <p>📞 +7 (923) 582-12-85</p>
                 </div>
             </div>

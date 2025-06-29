@@ -20,7 +20,6 @@ function haversine(lat1, lon1, lat2, lon2) {
     return R * c;
 }
 
-// Функция для форматирования расстояния
 function formatDistance(distance) {
     if (distance < 1) {
         return `${(distance * 1000).toFixed(0)} м`;
@@ -194,8 +193,6 @@ export default function RestaurantsPage() {
                     <h1 className={styles.title}>Рестораны Владивостока</h1>
                     <p className={styles.subtitle}>Найдите идеальное место для ужина</p>
                 </div>
-
-                {/* Фильтры */}
                 <div className={styles.filters}>
                     <div className={styles.filterGrid}>
                         <div className={styles.filterItem}>
@@ -267,16 +264,14 @@ export default function RestaurantsPage() {
                             )}
                         </div>
                     </div>
-                    
-                    {/* Сообщение об ошибке геолокации */}
+
                     {locationError && (
                         <div className={styles.errorMessage}>
                             <span className={styles.errorIcon}>⚠️</span>
                             {locationError}
                         </div>
                     )}
-                    
-                    {/* Кнопка сброса фильтров */}
+
                     <div className={styles.resetFiltersContainer}>
                         <button 
                             className={styles.resetFiltersButton}
@@ -288,7 +283,6 @@ export default function RestaurantsPage() {
                     </div>
                 </div>
 
-                {/* Список ресторанов */}
                 <div className={styles.restaurantsGrid}>
                     {filteredRestaurants.length === 0 ? (
                         <div className={styles.noResults}>
