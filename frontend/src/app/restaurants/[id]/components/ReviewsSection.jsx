@@ -51,13 +51,8 @@ export default function ReviewsSection({ restaurantId }) {
             setFormData({ rating: 5, comment: "" });
             setShowForm(false);
             fetchReviews();
-            alert("Отзыв успешно добавлен!");
         } catch (error) {
-            if (error.response?.data?.detail) {
-                alert(error.response.data.detail);
-            } else {
-                alert("Ошибка при добавлении отзыва");
-            }
+            // Ошибка обрабатывается автоматически
         } finally {
             setSubmitting(false);
         }
@@ -76,13 +71,8 @@ export default function ReviewsSection({ restaurantId }) {
             setFormData({ rating: 5, comment: "" });
             setShowForm(false);
             fetchReviews();
-            alert("Отзыв успешно обновлен!");
         } catch (error) {
-            if (error.response?.data?.detail) {
-                alert(error.response.data.detail);
-            } else {
-                alert("Ошибка при обновлении отзыва");
-            }
+            // Ошибка обрабатывается автоматически
         } finally {
             setSubmitting(false);
         }
@@ -97,9 +87,8 @@ export default function ReviewsSection({ restaurantId }) {
             await api.delete(`/reviews/${userReview.id}`);
             setUserReview(null);
             fetchReviews();
-            alert("Отзыв успешно удален!");
         } catch (error) {
-            alert("Ошибка при удалении отзыва");
+            // Ошибка обрабатывается автоматически
         }
     };
 

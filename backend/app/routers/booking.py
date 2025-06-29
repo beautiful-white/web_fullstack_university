@@ -8,7 +8,7 @@ from app.models.booking import Booking
 from app.models.table import Table
 from app.models.restaurant import Restaurant
 from app.database import SessionLocal
-from app.auth import get_current_active_user
+from app.auth import get_current_active_user, get_current_admin
 
 router = APIRouter(prefix="/bookings", tags=["bookings"])
 
@@ -70,6 +70,11 @@ def create_booking(booking: BookingCreate, db: Session = Depends(get_db), user=D
 @router.get("/", response_model=List[BookingRead])
 def list_bookings(db: Session = Depends(get_db), user=Depends(get_current_active_user)):
     return db.query(Booking).filter(Booking.user_id == user.id).all()
+
+
+@router.get("/all", response_model=List[BookingRead])
+def list_all_bookings(db: Session = Depends(get_db), admin=Depends(get_current_admin)):
+    return db.query(Booking).all()
 
 
 @router.get("/{booking_id}", response_model=BookingRead)

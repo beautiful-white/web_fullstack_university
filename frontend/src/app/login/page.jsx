@@ -34,7 +34,7 @@ export default function LoginPage() {
             });
             setToken(response.data.access_token);
             const decoded = JSON.parse(atob(response.data.access_token.split('.')[1]));
-            let role = decoded.role === "UserRole.admin" ? "admin" : decoded.role;
+            let role = (decoded.role === "admin" || decoded.role === "UserRole.admin") ? "admin" : decoded.role;
             setUser({ 
                 id: decoded.sub, 
                 email: formData.email, 

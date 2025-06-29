@@ -45,7 +45,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
         "sub": str(db_user.id),
         "email": db_user.email,
         "name": db_user.name,
-        "role": str(db_user.role)
+        "role": db_user.role.value
     })
     
     return RegisterResponse(
@@ -70,6 +70,6 @@ def login(login_data: LoginRequest, db: Session = Depends(get_db)):
         "sub": str(user.id),
         "email": user.email,
         "name": user.name,
-        "role": str(user.role)
+        "role": user.role.value
     })
     return {"access_token": access_token, "token_type": "bearer"}

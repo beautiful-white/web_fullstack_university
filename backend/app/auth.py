@@ -5,7 +5,7 @@ from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-from app.models.user import User
+from app.models.user import User, UserRole
 from app.database import SessionLocal
 import os
 
@@ -68,7 +68,7 @@ def get_current_active_user(current_user: User = Depends(get_current_user)):
 
 
 def get_current_admin(current_user: User = Depends(get_current_user)):
-    if str(current_user.role) != "UserRole.admin":
+    if current_user.role.value != "admin":
         raise HTTPException(
             status_code=403, detail="Not enough permissions")
     return current_user

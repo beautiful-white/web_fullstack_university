@@ -102,12 +102,10 @@ export default function RestaurantDetailPage() {
     const handleBooking = async (e) => {
         e.preventDefault();
         if (!user) {
-            alert("Пожалуйста, войдите в систему для бронирования");
             router.push("/login");
             return;
         }
         if (!bookingData.table_id) {
-            alert("Пожалуйста, выберите столик");
             return;
         }
         try {
@@ -120,12 +118,7 @@ export default function RestaurantDetailPage() {
             router.push("/bookings");
         } catch (error) {
             if (error.response?.status === 401) {
-                alert("Пожалуйста, войдите в систему");
                 router.push("/login");
-            } else if (error.response?.data?.detail) {
-                alert(error.response.data.detail);
-            } else {
-                alert("Ошибка при создании бронирования");
             }
         }
     };
@@ -184,199 +177,202 @@ export default function RestaurantDetailPage() {
     const menuImages = getMenuImages();
 
     return (
-        <div className={styles.container}>
-            <div className={styles.header}>
-                <button className={styles.backButton} onClick={() => router.back()}>
-                    ← Назад
-                </button>
-            </div>
-
-            {/* Основная информация о ресторане */}
-            <div className={styles.heroSection}>
-                <div className={styles.heroImage}>
-                    <img 
-                        src={restaurant.image_url || "https://via.placeholder.com/1200x400?text=Ресторан"} 
-                        alt={restaurant.name}
-                        className={styles.mainImage}
-                    />
-                    <div className={styles.heroOverlay}>
-                        <h1 className={styles.restaurantName}>{restaurant.name}</h1>
-                        <div className={styles.heroRating}>
-                            {renderStars(restaurant.rating)}
-                            <span className={styles.ratingText}>({restaurant.rating})</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div className={styles.content}>
-                <div className={styles.infoSection}>
-                    <div className={styles.description}>
-                        <h2>О ресторане</h2>
-                        <p>{restaurant.description}</p>
-                    </div>
-                    
-                    <div className={styles.details}>
-                        <div className={styles.detail}>
-                            <span className={styles.label}>Кухня:</span>
-                            <span className={styles.value}>{restaurant.cuisine}</span>
-                        </div>
-                        <div className={styles.detail}>
-                            <span className={styles.label}>Ценовой диапазон:</span>
-                            <span className={styles.value}>{restaurant.price_range}</span>
-                        </div>
-                        <div className={styles.detail}>
-                            <span className={styles.label}>Адрес:</span>
-                            <span className={styles.value}>{restaurant.location}</span>
-                        </div>
-                    </div>
+        <>
+            <div className={styles.background}></div>
+            <div className={styles.container}>
+                <div className={styles.header}>
+                    <button className={styles.backButton} onClick={() => router.back()}>
+                        ←
+                    </button>
                 </div>
 
-                {/* Галерея фотографий */}
-                {galleryImages.length > 0 && (
-                    <div className={styles.gallerySection}>
-                        <h2>Фотографии ресторана</h2>
-                        <div className={styles.gallery}>
-                            <div className={styles.mainGalleryImage}>
-                                <img 
-                                    src={galleryImages[activeImageIndex]} 
-                                    alt={`${restaurant.name} - фото ${activeImageIndex + 1}`}
-                                    className={styles.galleryMainImage}
-                                />
-                            </div>
-                            {galleryImages.length > 1 && (
-                                <div className={styles.galleryThumbnails}>
-                                    {galleryImages.map((image, index) => (
-                                        <img 
-                                            key={index}
-                                            src={image} 
-                                            alt={`Фото ${index + 1}`}
-                                            className={`${styles.galleryThumbnail} ${activeImageIndex === index ? styles.activeThumbnail : ''}`}
-                                            onClick={() => setActiveImageIndex(index)}
-                                        />
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                )}
-
-                {/* Меню ресторана */}
-                {menuImages.length > 0 && (
-                    <div className={styles.menuSection}>
-                        <h2>Меню ресторана</h2>
-                        <div className={styles.menuGallery}>
-                            <div className={styles.mainMenuImage}>
-                                <img 
-                                    src={menuImages[activeMenuIndex]} 
-                                    alt={`Меню ${activeMenuIndex + 1}`}
-                                    className={styles.menuMainImage}
-                                />
-                            </div>
-                            {menuImages.length > 1 && (
-                                <div className={styles.menuThumbnails}>
-                                    {menuImages.map((image, index) => (
-                                        <img 
-                                            key={index}
-                                            src={image} 
-                                            alt={`Меню ${index + 1}`}
-                                            className={`${styles.menuThumbnail} ${activeMenuIndex === index ? styles.activeThumbnail : ''}`}
-                                            onClick={() => setActiveMenuIndex(index)}
-                                        />
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                )}
-            </div>
-
-            {/* Секция бронирования */}
-            <div className={styles.bookingSection}>
-                <h2 className={styles.bookingTitle}>Забронировать столик</h2>
-                <form onSubmit={handleBooking} className={styles.bookingForm}>
-                    <div className={styles.formGroup}>
-                        <label htmlFor="date">Дата</label>
-                        <input
-                            type="date"
-                            id="date"
-                            value={bookingData.date}
-                            onChange={(e) => setBookingData({...bookingData, date: e.target.value, table_id: null})}
-                            required
-                            className={styles.input}
-                            min={new Date().toISOString().split('T')[0]}
+                {/* Основная информация о ресторане */}
+                <div className={styles.heroSection}>
+                    <div className={styles.heroImage}>
+                        <img 
+                            src={restaurant.image_url || "https://via.placeholder.com/1200x400?text=Ресторан"} 
+                            alt={restaurant.name}
+                            className={styles.mainImage}
                         />
-                    </div>
-                    <div className={styles.formGroup}>
-                        <label htmlFor="guests">Количество гостей</label>
-                        <select
-                            id="guests"
-                            value={bookingData.guests}
-                            onChange={(e) => setBookingData({...bookingData, guests: parseInt(e.target.value), table_id: null})}
-                            className={styles.select}
-                        >
-                            {[1,2,3,4,5,6,7,8].map(num => (
-                                <option key={num} value={num}>{num} {num === 1 ? 'гость' : num < 5 ? 'гостя' : 'гостей'}</option>
-                            ))}
-                        </select>
-                    </div>
-                    <div className={styles.formGroup}>
-                        <label htmlFor="time">Время</label>
-                        <select
-                            id="time"
-                            value={bookingData.time}
-                            onChange={(e) => setBookingData({...bookingData, time: e.target.value, table_id: null})}
-                            required
-                            className={styles.select}
-                            disabled={!availableTimeSlots.length}
-                        >
-                            <option value="">Выберите время</option>
-                            {availableTimeSlots.map(slot => (
-                                <option key={slot.start_time} value={slot.start_time}>
-                                    {slot.start_time.substring(0,5)} - {slot.end_time.substring(0,5)}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                </form>
-                {/* Выбор столика */}
-                {bookingData.date && bookingData.time && (
-                    <div className={styles.tablesSection}>
-                        <h3 className={styles.tablesTitle}>Доступные столики</h3>
-                        {loadingTables ? (
-                            <div className={styles.loadingTables}>Поиск доступных столиков...</div>
-                        ) : availableTables.length > 0 ? (
-                            <div className={styles.tablesGrid}>
-                                {availableTables.map(table => (
-                                    <div 
-                                        key={table.id} 
-                                        className={`${styles.tableCard} ${bookingData.table_id === table.id ? styles.selectedTable : ''}`}
-                                        onClick={() => setBookingData({...bookingData, table_id: table.id})}
-                                    >
-                                        <div className={styles.tableNumber}>Столик {table.id}</div>
-                                        <div className={styles.tableSeats}>{table.seats} мест</div>
-                                    </div>
-                                ))}
+                        <div className={styles.heroOverlay}>
+                            <h1 className={styles.restaurantName}>{restaurant.name}</h1>
+                            <div className={styles.heroRating}>
+                                {renderStars(restaurant.rating)}
+                                <span className={styles.ratingText}>({restaurant.rating})</span>
                             </div>
-                        ) : (
-                            <div className={styles.noTables}>
-                                Нет доступных столиков на выбранное время
-                            </div>
-                        )}
+                        </div>
                     </div>
-                )}
-                <button 
-                    type="submit" 
-                    className={styles.bookingButton}
-                    onClick={handleBooking}
-                    disabled={!bookingData.table_id}
-                >
-                    Забронировать
-                </button>
-            </div>
+                </div>
 
-            {/* Секция отзывов */}
-            <ReviewsSection restaurantId={restaurant.id} />
-        </div>
+                <div className={styles.content}>
+                    <div className={styles.infoSection}>
+                        <div className={styles.description}>
+                            <h2>О ресторане</h2>
+                            <p>{restaurant.description}</p>
+                        </div>
+                        
+                        <div className={styles.details}>
+                            <div className={styles.detail}>
+                                <span className={styles.label}>Кухня:</span>
+                                <span className={styles.value}>{restaurant.cuisine}</span>
+                            </div>
+                            <div className={styles.detail}>
+                                <span className={styles.label}>Ценовой диапазон:</span>
+                                <span className={styles.value}>{restaurant.price_range}</span>
+                            </div>
+                            <div className={styles.detail}>
+                                <span className={styles.label}>Адрес:</span>
+                                <span className={styles.value}>{restaurant.location}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Галерея фотографий */}
+                    {galleryImages.length > 0 && (
+                        <div className={styles.gallerySection}>
+                            <h2>Фотографии ресторана</h2>
+                            <div className={styles.gallery}>
+                                <div className={styles.mainGalleryImage}>
+                                    <img 
+                                        src={galleryImages[activeImageIndex]} 
+                                        alt={`${restaurant.name} - фото ${activeImageIndex + 1}`}
+                                        className={styles.galleryMainImage}
+                                    />
+                                </div>
+                                {galleryImages.length > 1 && (
+                                    <div className={styles.galleryThumbnails}>
+                                        {galleryImages.map((image, index) => (
+                                            <img 
+                                                key={index}
+                                                src={image} 
+                                                alt={`Фото ${index + 1}`}
+                                                className={`${styles.galleryThumbnail} ${activeImageIndex === index ? styles.activeThumbnail : ''}`}
+                                                onClick={() => setActiveImageIndex(index)}
+                                            />
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Меню ресторана */}
+                    {menuImages.length > 0 && (
+                        <div className={styles.menuSection}>
+                            <h2>Меню ресторана</h2>
+                            <div className={styles.menuGallery}>
+                                <div className={styles.mainMenuImage}>
+                                    <img 
+                                        src={menuImages[activeMenuIndex]} 
+                                        alt={`Меню ${activeMenuIndex + 1}`}
+                                        className={styles.menuMainImage}
+                                    />
+                                </div>
+                                {menuImages.length > 1 && (
+                                    <div className={styles.menuThumbnails}>
+                                        {menuImages.map((image, index) => (
+                                            <img 
+                                                key={index}
+                                                src={image} 
+                                                alt={`Меню ${index + 1}`}
+                                                className={`${styles.menuThumbnail} ${activeMenuIndex === index ? styles.activeThumbnail : ''}`}
+                                                onClick={() => setActiveMenuIndex(index)}
+                                            />
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* Секция бронирования */}
+                <div className={styles.bookingSection}>
+                    <h2 className={styles.bookingTitle}>Забронировать столик</h2>
+                    <form onSubmit={handleBooking} className={styles.bookingForm}>
+                        <div className={styles.formGroup}>
+                            <label htmlFor="date">Дата</label>
+                            <input
+                                type="date"
+                                id="date"
+                                value={bookingData.date}
+                                onChange={(e) => setBookingData({...bookingData, date: e.target.value, table_id: null})}
+                                required
+                                className={styles.input}
+                                min={new Date().toISOString().split('T')[0]}
+                            />
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label htmlFor="guests">Количество гостей</label>
+                            <select
+                                id="guests"
+                                value={bookingData.guests}
+                                onChange={(e) => setBookingData({...bookingData, guests: parseInt(e.target.value), table_id: null})}
+                                className={styles.select}
+                            >
+                                {[1,2,3,4,5,6,7,8].map(num => (
+                                    <option key={num} value={num}>{num} {num === 1 ? 'гость' : num < 5 ? 'гостя' : 'гостей'}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label htmlFor="time">Время</label>
+                            <select
+                                id="time"
+                                value={bookingData.time}
+                                onChange={(e) => setBookingData({...bookingData, time: e.target.value, table_id: null})}
+                                required
+                                className={styles.select}
+                                disabled={!availableTimeSlots.length}
+                            >
+                                <option value="">Выберите время</option>
+                                {availableTimeSlots.map(slot => (
+                                    <option key={slot.start_time} value={slot.start_time}>
+                                        {slot.start_time.substring(0,5)} - {slot.end_time.substring(0,5)}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </form>
+                    {/* Выбор столика */}
+                    {bookingData.date && bookingData.time && (
+                        <div className={styles.tablesSection}>
+                            <h3 className={styles.tablesTitle}>Доступные столики</h3>
+                            {loadingTables ? (
+                                <div className={styles.loadingTables}>Поиск доступных столиков...</div>
+                            ) : availableTables.length > 0 ? (
+                                <div className={styles.tablesGrid}>
+                                    {availableTables.map(table => (
+                                        <div 
+                                            key={table.id} 
+                                            className={`${styles.tableCard} ${bookingData.table_id === table.id ? styles.selectedTable : ''}`}
+                                            onClick={() => setBookingData({...bookingData, table_id: table.id})}
+                                        >
+                                            <div className={styles.tableNumber}>Столик {table.id}</div>
+                                            <div className={styles.tableSeats}>{table.seats} мест</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className={styles.noTables}>
+                                    Нет доступных столиков на выбранное время
+                                </div>
+                            )}
+                        </div>
+                    )}
+                    <button 
+                        type="submit" 
+                        className={styles.bookingButton}
+                        onClick={handleBooking}
+                        disabled={!bookingData.table_id}
+                    >
+                        Забронировать
+                    </button>
+                </div>
+
+                {/* Секция отзывов */}
+                <ReviewsSection restaurantId={restaurant.id} />
+            </div>
+        </>
     );
 } 
