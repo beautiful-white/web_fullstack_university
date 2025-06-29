@@ -21,17 +21,15 @@ export default function ReviewsSection({ restaurantId }) {
     }, [restaurantId]);
 
     const fetchReviews = async () => {
+        setLoading(true);
         try {
-            const response = await api.get(`/reviews/restaurant/${restaurantId}`);
+            const response = await api.get(`/restaurants/${restaurantId}/reviews`);
             setReviews(response.data);
-
-            // Проверяем, есть ли отзыв от текущего пользователя
             if (user) {
                 const userReview = response.data.find(review => review.user_id === user.id);
                 setUserReview(userReview);
             }
         } catch (error) {
-            console.error("Error fetching reviews:", error);
         } finally {
             setLoading(false);
         }
@@ -52,7 +50,6 @@ export default function ReviewsSection({ restaurantId }) {
             setShowForm(false);
             fetchReviews();
         } catch (error) {
-            // Ошибка обрабатывается автоматически
         } finally {
             setSubmitting(false);
         }
@@ -72,7 +69,6 @@ export default function ReviewsSection({ restaurantId }) {
             setShowForm(false);
             fetchReviews();
         } catch (error) {
-            // Ошибка обрабатывается автоматически
         } finally {
             setSubmitting(false);
         }
@@ -88,7 +84,6 @@ export default function ReviewsSection({ restaurantId }) {
             setUserReview(null);
             fetchReviews();
         } catch (error) {
-            // Ошибка обрабатывается автоматически
         }
     };
 

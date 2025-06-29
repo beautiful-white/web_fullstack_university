@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import api from "../../shared/api";
 import styles from "./admin.module.css";
+import Footer from "../components/Footer";
 
 export default function AdminPage() {
     const { user } = useAuth();
@@ -11,42 +12,60 @@ export default function AdminPage() {
     const [activeTab, setActiveTab] = useState("restaurants");
     const [restaurants, setRestaurants] = useState([]);
     const [bookings, setBookings] = useState([]);
-    const [tables, setTables] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [authLoading, setAuthLoading] = useState(true);
+    const [editingRestaurant, setEditingRestaurant] = useState(null);
     const [newRestaurant, setNewRestaurant] = useState({
         name: "",
         location: "",
+        latitude: "",
+        longitude: "",
         cuisine: "",
         price_range: "",
-        description: ""
+        description: "",
+        opening_time: "10:00",
+        closing_time: "22:00",
+        phone: "",
+        image_url: "",
+        gallery: [],
+        menu_images: []
     });
-    const [newTable, setNewTable] = useState({
-        restaurant_id: "",
-        seats: 2,
-        is_available: true
-    });
+    const [mainImageUploading, setMainImageUploading] = useState(false);
 
     useEffect(() => {
-        if (!user || user.role !== "admin") {
-            router.push("/login");
-            return;
+        const token = localStorage.getItem("token");
+        const userStr = localStorage.getItem("user");
+        if (token && userStr) {
+            setAuthLoading(false);
+        } else {
+            setAuthLoading(false);
+            if (!user) {
+                router.push("/login");
+                return;
+            }
         }
-        fetchData();
-    }, [user, router]);
+    }, []);
+
+    useEffect(() => {
+        if (!authLoading && user && user.role === "admin") {
+            fetchData();
+        } else if (!authLoading && (!user || user.role !== "admin")) {
+            router.push("/login");
+        }
+        // eslint-disable-next-line
+    }, [user, authLoading]);
 
     const fetchData = async () => {
+        setLoading(true);
         try {
-            const bookingsUrl = user && user.role === "admin" ? "/bookings/all" : "/bookings/";
-            const [restaurantsRes, bookingsRes, tablesRes] = await Promise.all([
+            const bookingsUrl = user.role === "admin" ? "/bookings/all" : `/bookings/?user_id=${user.id}`;
+            const [restaurantsRes, bookingsRes] = await Promise.all([
                 api.get("/restaurants/"),
-                api.get(bookingsUrl),
-                api.get("/tables/")
+                api.get(bookingsUrl)
             ]);
             setRestaurants(restaurantsRes.data);
             setBookings(bookingsRes.data);
-            setTables(tablesRes.data);
         } catch (error) {
-            console.error("Error fetching data:", error);
         } finally {
             setLoading(false);
         }
@@ -55,35 +74,64 @@ export default function AdminPage() {
     const handleCreateRestaurant = async (e) => {
         e.preventDefault();
         try {
-            await api.post("/restaurants/", newRestaurant);
+            const restaurantData = {
+                ...newRestaurant,
+                latitude: newRestaurant.latitude ? parseFloat(newRestaurant.latitude) : null,
+                longitude: newRestaurant.longitude ? parseFloat(newRestaurant.longitude) : null,
+                gallery: newRestaurant.gallery.filter(url => url.trim()),
+                menu_images: newRestaurant.menu_images.filter(url => url.trim()),
+                image_url: newRestaurant.image_url || null
+            };
+            await api.post("/restaurants/", restaurantData);
             setNewRestaurant({
                 name: "",
                 location: "",
+                latitude: "",
+                longitude: "",
                 cuisine: "",
                 price_range: "",
-                description: ""
+                description: "",
+                opening_time: "10:00",
+                closing_time: "22:00",
+                phone: "",
+                image_url: "",
+                gallery: [],
+                menu_images: []
             });
             fetchData();
         } catch (error) {
-            // Ошибка обрабатывается автоматически
+            console.error("Ошибка при создании ресторана:", error);
         }
     };
 
-    const handleCreateTable = async (e) => {
+    const handleUpdateRestaurant = async (e) => {
         e.preventDefault();
-        if (!newTable.restaurant_id) {
+        if (!editingRestaurant) return;
+        try {
+            const restaurantData = {
+                ...editingRestaurant,
+                latitude: editingRestaurant.latitude ? parseFloat(editingRestaurant.latitude) : null,
+                longitude: editingRestaurant.longitude ? parseFloat(editingRestaurant.longitude) : null,
+                gallery: editingRestaurant.gallery.filter(url => url.trim()),
+                menu_images: editingRestaurant.menu_images.filter(url => url.trim()),
+                image_url: editingRestaurant.image_url || null
+            };
+            await api.put(`/restaurants/${editingRestaurant.id}`, restaurantData);
+            setEditingRestaurant(null);
+            fetchData();
+        } catch (error) {
+            console.error("Ошибка при обновлении ресторана:", error);
+        }
+    };
+
+    const handleDeleteRestaurant = async (restaurantId) => {
+        if (!confirm("Вы уверены, что хотите удалить этот ресторан?")) {
             return;
         }
         try {
-            await api.post("/tables/", newTable);
-            setNewTable({
-                restaurant_id: "",
-                seats: 2,
-                is_available: true
-            });
+            await api.delete(`/restaurants/${restaurantId}`);
             fetchData();
         } catch (error) {
-            // Ошибка обрабатывается автоматически
         }
     };
 
@@ -92,42 +140,75 @@ export default function AdminPage() {
             await api.put(`/bookings/${bookingId}`, { status });
             fetchData();
         } catch (error) {
-            // Ошибка обрабатывается автоматически
         }
     };
 
-    const handleToggleTableAvailability = async (tableId) => {
-        try {
-            await api.put(`/tables/${tableId}/availability`);
-            fetchData();
-        } catch (error) {
-            // Ошибка обрабатывается автоматически
+    const addImageUrl = (type, url) => {
+        if (!url.trim()) return;
+        
+        if (editingRestaurant) {
+            setEditingRestaurant({
+                ...editingRestaurant,
+                [type]: [...editingRestaurant[type], url.trim()]
+            });
+        } else {
+            setNewRestaurant({
+                ...newRestaurant,
+                [type]: [...newRestaurant[type], url.trim()]
+            });
         }
     };
 
-    const handleDeleteTable = async (tableId) => {
-        if (!confirm("Вы уверены, что хотите удалить этот столик?")) {
-            return;
-        }
-        try {
-            await api.delete(`/tables/${tableId}`);
-            fetchData();
-        } catch (error) {
-            // Ошибка обрабатывается автоматически
+    const removeImageUrl = (type, index) => {
+        if (editingRestaurant) {
+            setEditingRestaurant({
+                ...editingRestaurant,
+                [type]: editingRestaurant[type].filter((_, i) => i !== index)
+            });
+        } else {
+            setNewRestaurant({
+                ...newRestaurant,
+                [type]: newRestaurant[type].filter((_, i) => i !== index)
+            });
         }
     };
 
-    const getRestaurantName = (restaurantId) => {
-        const restaurant = restaurants.find(r => r.id === restaurantId);
-        return restaurant ? restaurant.name : `Ресторан #${restaurantId}`;
+    const formatDate = (dateString) => {
+        return new Date(dateString).toLocaleDateString("ru-RU");
     };
 
-    if (!user || user.role !== "admin") {
+    const formatTime = (timeString) => {
+        return timeString.substring(0, 5);
+    };
+
+    const getStatusText = (status) => {
+        switch (status) {
+            case "active": return "Активно";
+            case "cancelled": return "Отменено";
+            case "completed": return "Завершено";
+            default: return status;
+        }
+    };
+
+    const getStatusClass = (status) => {
+        switch (status) {
+            case "active": return styles.statusActive;
+            case "cancelled": return styles.statusCancelled;
+            case "completed": return styles.statusCompleted;
+            default: return "";
+        }
+    };
+
+    if (authLoading) {
         return (
             <div className={styles.container}>
-                <div className={styles.loading}>Проверка прав доступа...</div>
+                <div className={styles.loading}>Проверка авторизации...</div>
             </div>
         );
+    }
+
+    if (!user || user.role !== "admin") {
+        return null;
     }
 
     if (loading) {
@@ -159,12 +240,6 @@ export default function AdminPage() {
                     >
                         Бронирования
                     </button>
-                    <button 
-                        className={`${styles.tab} ${activeTab === "tables" ? styles.activeTab : ""}`}
-                        onClick={() => setActiveTab("tables")}
-                    >
-                        Столики
-                    </button>
                 </div>
 
                 <div className={styles.content}>
@@ -172,42 +247,54 @@ export default function AdminPage() {
                         <div className={styles.section}>
                             <h2>Управление ресторанами</h2>
                             
-                            {/* Форма создания ресторана */}
+                            {/* Форма создания/редактирования ресторана */}
                             <div className={styles.createForm}>
-                                <h3>Создать новый ресторан</h3>
-                                <form onSubmit={handleCreateRestaurant}>
+                                <h3>{editingRestaurant ? "Редактировать ресторан" : "Создать новый ресторан"}</h3>
+                                <form onSubmit={editingRestaurant ? handleUpdateRestaurant : handleCreateRestaurant}>
                                     <div className={styles.formGrid}>
                                         <input
                                             type="text"
                                             placeholder="Название ресторана"
-                                            value={newRestaurant.name}
-                                            onChange={(e) => setNewRestaurant({...newRestaurant, name: e.target.value})}
+                                            value={editingRestaurant ? editingRestaurant.name : newRestaurant.name}
+                                            onChange={(e) => editingRestaurant 
+                                                ? setEditingRestaurant({...editingRestaurant, name: e.target.value})
+                                                : setNewRestaurant({...newRestaurant, name: e.target.value})
+                                            }
                                             required
                                             className={styles.input}
                                         />
                                         <input
                                             type="text"
                                             placeholder="Адрес"
-                                            value={newRestaurant.location}
-                                            onChange={(e) => setNewRestaurant({...newRestaurant, location: e.target.value})}
+                                            value={editingRestaurant ? editingRestaurant.location : newRestaurant.location}
+                                            onChange={(e) => editingRestaurant 
+                                                ? setEditingRestaurant({...editingRestaurant, location: e.target.value})
+                                                : setNewRestaurant({...newRestaurant, location: e.target.value})
+                                            }
                                             required
                                             className={styles.input}
                                         />
                                         <input
                                             type="text"
                                             placeholder="Кухня"
-                                            value={newRestaurant.cuisine}
-                                            onChange={(e) => setNewRestaurant({...newRestaurant, cuisine: e.target.value})}
+                                            value={editingRestaurant ? editingRestaurant.cuisine : newRestaurant.cuisine}
+                                            onChange={(e) => editingRestaurant 
+                                                ? setEditingRestaurant({...editingRestaurant, cuisine: e.target.value})
+                                                : setNewRestaurant({...newRestaurant, cuisine: e.target.value})
+                                            }
                                             required
                                             className={styles.input}
                                         />
                                         <select
-                                            value={newRestaurant.price_range}
-                                            onChange={(e) => setNewRestaurant({...newRestaurant, price_range: e.target.value})}
+                                            value={editingRestaurant ? editingRestaurant.price_range : newRestaurant.price_range}
+                                            onChange={(e) => editingRestaurant 
+                                                ? setEditingRestaurant({...editingRestaurant, price_range: e.target.value})
+                                                : setNewRestaurant({...newRestaurant, price_range: e.target.value})
+                                            }
                                             required
                                             className={styles.select}
                                         >
-                                            <option value="">Выберите ценовой диапазон</option>
+                                            <option value="">Выберите средний чек</option>
                                             <option value="$">$ (Недорого)</option>
                                             <option value="$$">$$ (Средне)</option>
                                             <option value="$$$">$$$ (Дорого)</option>
@@ -217,29 +304,270 @@ export default function AdminPage() {
                                             type="number"
                                             step="any"
                                             placeholder="Широта (latitude)"
-                                            value={newRestaurant.latitude || ""}
-                                            onChange={(e) => setNewRestaurant({...newRestaurant, latitude: e.target.value})}
+                                            value={editingRestaurant ? editingRestaurant.latitude || "" : newRestaurant.latitude}
+                                            onChange={(e) => editingRestaurant 
+                                                ? setEditingRestaurant({...editingRestaurant, latitude: e.target.value})
+                                                : setNewRestaurant({...newRestaurant, latitude: e.target.value})
+                                            }
                                             className={styles.input}
                                         />
                                         <input
                                             type="number"
                                             step="any"
                                             placeholder="Долгота (longitude)"
-                                            value={newRestaurant.longitude || ""}
-                                            onChange={(e) => setNewRestaurant({...newRestaurant, longitude: e.target.value})}
+                                            value={editingRestaurant ? editingRestaurant.longitude || "" : newRestaurant.longitude}
+                                            onChange={(e) => editingRestaurant 
+                                                ? setEditingRestaurant({...editingRestaurant, longitude: e.target.value})
+                                                : setNewRestaurant({...newRestaurant, longitude: e.target.value})
+                                            }
+                                            className={styles.input}
+                                        />
+                                        <input
+                                            type="time"
+                                            value={editingRestaurant ? editingRestaurant.opening_time : newRestaurant.opening_time}
+                                            onChange={(e) => editingRestaurant 
+                                                ? setEditingRestaurant({...editingRestaurant, opening_time: e.target.value})
+                                                : setNewRestaurant({...newRestaurant, opening_time: e.target.value})
+                                            }
+                                            className={styles.input}
+                                        />
+                                        <input
+                                            type="time"
+                                            value={editingRestaurant ? editingRestaurant.closing_time : newRestaurant.closing_time}
+                                            onChange={(e) => editingRestaurant 
+                                                ? setEditingRestaurant({...editingRestaurant, closing_time: e.target.value})
+                                                : setNewRestaurant({...newRestaurant, closing_time: e.target.value})
+                                            }
+                                            className={styles.input}
+                                        />
+                                        <input
+                                            type="tel"
+                                            placeholder="Телефон"
+                                            value={editingRestaurant ? editingRestaurant.phone || "" : newRestaurant.phone}
+                                            onChange={(e) => editingRestaurant 
+                                                ? setEditingRestaurant({...editingRestaurant, phone: e.target.value})
+                                                : setNewRestaurant({...newRestaurant, phone: e.target.value})
+                                            }
                                             className={styles.input}
                                         />
                                     </div>
                                     <textarea
                                         placeholder="Описание ресторана"
-                                        value={newRestaurant.description}
-                                        onChange={(e) => setNewRestaurant({...newRestaurant, description: e.target.value})}
+                                        value={editingRestaurant ? editingRestaurant.description || "" : newRestaurant.description}
+                                        onChange={(e) => editingRestaurant 
+                                            ? setEditingRestaurant({...editingRestaurant, description: e.target.value})
+                                            : setNewRestaurant({...newRestaurant, description: e.target.value})
+                                        }
                                         className={styles.textarea}
                                         rows="3"
                                     />
-                                    <button type="submit" className={styles.submitButton}>
-                                        Создать ресторан
-                                    </button>
+                                    
+                                    {/* Главное изображение */}
+                                    <div className={styles.imageSection}>
+                                        <h4>Главное изображение</h4>
+                                        <div className={styles.imageInput}>
+                                            <input
+                                                type="text"
+                                                placeholder="URL главного изображения"
+                                                value={editingRestaurant ? editingRestaurant.image_url || "" : newRestaurant.image_url}
+                                                onChange={(e) => editingRestaurant 
+                                                    ? setEditingRestaurant({...editingRestaurant, image_url: e.target.value})
+                                                    : setNewRestaurant({...newRestaurant, image_url: e.target.value})
+                                                }
+                                                className={styles.input}
+                                            />
+                                            {editingRestaurant && (
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={async (e) => {
+                                                        const file = e.target.files[0];
+                                                        if (file) {
+                                                            setMainImageUploading(true);
+                                                            const formData = new FormData();
+                                                            formData.append('file', file);
+                                                            try {
+                                                                const response = await api.post(`/restaurants/${editingRestaurant.id}/upload_main_image`, formData, {
+                                                                    headers: { 'Content-Type': 'multipart/form-data' }
+                                                                });
+                                                                setEditingRestaurant({
+                                                                    ...editingRestaurant,
+                                                                    image_url: response.data.image_url
+                                                                });
+                                                            } catch (error) {
+                                                                console.error("Ошибка при загрузке главного изображения:", error);
+                                                            } finally {
+                                                                setMainImageUploading(false);
+                                                            }
+                                                        }
+                                                    }}
+                                                    className={styles.fileInput}
+                                                />
+                                            )}
+                                        </div>
+                                        <p className={styles.helpText}>
+                                            {editingRestaurant 
+                                                ? "Или загрузите файл (автоматически сохранится как main.jpg)"
+                                                : "Для нового ресторана используйте URL или загрузите файл после создания"
+                                            }
+                                        </p>
+                                    </div>
+                                    {mainImageUploading && (
+                                        <div style={{ color: '#888', marginTop: 8 }}>Загрузка изображения...</div>
+                                    )}
+
+                                    {/* Галерея изображений */}
+                                    <div className={styles.imageSection}>
+                                        <h4>Галерея изображений</h4>
+                                        <div className={styles.imageInput}>
+                                            <input
+                                                type="url"
+                                                placeholder="URL изображения галереи"
+                                                id="galleryUrl"
+                                                className={styles.input}
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const url = document.getElementById('galleryUrl').value;
+                                                    addImageUrl('gallery', url);
+                                                    document.getElementById('galleryUrl').value = '';
+                                                }}
+                                                className={styles.addButton}
+                                            >
+                                                Добавить URL
+                                            </button>
+                                            {editingRestaurant && (
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={async (e) => {
+                                                        const file = e.target.files[0];
+                                                        if (file) {
+                                                            const formData = new FormData();
+                                                            formData.append('file', file);
+                                                            try {
+                                                                const response = await api.post(`/restaurants/${editingRestaurant.id}/upload_gallery_image`, formData, {
+                                                                    headers: { 'Content-Type': 'multipart/form-data' }
+                                                                });
+                                                                setEditingRestaurant({
+                                                                    ...editingRestaurant,
+                                                                    gallery: [...(editingRestaurant.gallery || []), response.data.image_url]
+                                                                });
+                                                            } catch (error) {
+                                                                console.error("Ошибка при загрузке изображения галереи:", error);
+                                                            }
+                                                        }
+                                                    }}
+                                                    className={styles.fileInput}
+                                                />
+                                            )}
+                                        </div>
+                                        <div className={styles.imageList}>
+                                            {(editingRestaurant ? editingRestaurant.gallery : newRestaurant.gallery).map((url, index) => (
+                                                <div key={index} className={styles.imageItem}>
+                                                    <span>{url}</span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeImageUrl('gallery', index)}
+                                                        className={styles.removeButton}
+                                                    >
+                                                        ✕
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <p className={styles.helpText}>
+                                            {editingRestaurant 
+                                                ? "Добавьте URL или загрузите файл (автоматически сохранится как gallery_X.jpg)"
+                                                : "Для нового ресторана используйте URL или загрузите файл после создания"
+                                            }
+                                        </p>
+                                    </div>
+
+                                    {/* Изображения меню */}
+                                    <div className={styles.imageSection}>
+                                        <h4>Изображения меню</h4>
+                                        <div className={styles.imageInput}>
+                                            <input
+                                                type="url"
+                                                placeholder="URL изображения меню"
+                                                id="menuUrl"
+                                                className={styles.input}
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const url = document.getElementById('menuUrl').value;
+                                                    addImageUrl('menu_images', url);
+                                                    document.getElementById('menuUrl').value = '';
+                                                }}
+                                                className={styles.addButton}
+                                            >
+                                                Добавить URL
+                                            </button>
+                                            {editingRestaurant && (
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={async (e) => {
+                                                        const file = e.target.files[0];
+                                                        if (file) {
+                                                            const formData = new FormData();
+                                                            formData.append('file', file);
+                                                            try {
+                                                                const response = await api.post(`/restaurants/${editingRestaurant.id}/upload_menu_image`, formData, {
+                                                                    headers: { 'Content-Type': 'multipart/form-data' }
+                                                                });
+                                                                setEditingRestaurant({
+                                                                    ...editingRestaurant,
+                                                                    menu_images: [...(editingRestaurant.menu_images || []), response.data.image_url]
+                                                                });
+                                                            } catch (error) {
+                                                                console.error("Ошибка при загрузке изображения меню:", error);
+                                                            }
+                                                        }
+                                                    }}
+                                                    className={styles.fileInput}
+                                                />
+                                            )}
+                                        </div>
+                                        <div className={styles.imageList}>
+                                            {(editingRestaurant ? editingRestaurant.menu_images : newRestaurant.menu_images).map((url, index) => (
+                                                <div key={index} className={styles.imageItem}>
+                                                    <span>{url}</span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeImageUrl('menu_images', index)}
+                                                        className={styles.removeButton}
+                                                    >
+                                                        ✕
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <p className={styles.helpText}>
+                                            {editingRestaurant 
+                                                ? "Добавьте URL или загрузите файл (автоматически сохранится как menu_X.jpg)"
+                                                : "Для нового ресторана используйте URL или загрузите файл после создания"
+                                            }
+                                        </p>
+                                    </div>
+
+                                    <div className={styles.formActions}>
+                                        <button type="submit" className={styles.submitButton} disabled={mainImageUploading}>
+                                            {editingRestaurant ? "Обновить ресторан" : "Создать ресторан"}
+                                        </button>
+                                        {editingRestaurant && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setEditingRestaurant(null)}
+                                                className={styles.cancelButton}
+                                            >
+                                                Отменить редактирование
+                                            </button>
+                                        )}
+                                    </div>
                                 </form>
                             </div>
 
@@ -253,14 +581,29 @@ export default function AdminPage() {
                                             <p><strong>Адрес:</strong> {restaurant.location}</p>
                                             <p><strong>Координаты:</strong> {restaurant.latitude}, {restaurant.longitude}</p>
                                             <p><strong>Кухня:</strong> {restaurant.cuisine}</p>
-                                            <p><strong>Цена:</strong> {restaurant.price_range}</p>
+                                            <p><strong>Средний чек:</strong> {restaurant.price_range}</p>
                                             <p><strong>Рейтинг:</strong> {restaurant.rating}</p>
+                                            <p><strong>Время работы:</strong> {restaurant.opening_time} - {restaurant.closing_time}</p>
+                                            <p><strong>Телефон:</strong> {restaurant.phone || "Не указан"}</p>
+                                            <p><strong>Описание:</strong> {restaurant.description || "Не указано"}</p>
+                                            <p><strong>Главное изображение:</strong> {restaurant.image_url || "Не указано"}</p>
+                                            <p><strong>Галерея:</strong> {restaurant.gallery?.length || 0} изображений</p>
+                                            <p><strong>Меню:</strong> {restaurant.menu_images?.length || 0} изображений</p>
                                         </div>
                                         <div className={styles.restaurantActions}>
-                                            <button className={styles.editButton}>
+                                            <button 
+                                                className={styles.editButton}
+                                                onClick={() => {
+                                                    setEditingRestaurant(restaurant);
+                                                    window.scrollTo({ top: 0, behavior: "smooth" });
+                                                }}
+                                            >
                                                 Редактировать
                                             </button>
-                                            <button className={styles.deleteButton}>
+                                            <button 
+                                                className={styles.deleteButton}
+                                                onClick={() => handleDeleteRestaurant(restaurant.id)}
+                                            >
                                                 Удалить
                                             </button>
                                         </div>
@@ -279,10 +622,16 @@ export default function AdminPage() {
                                         <div className={styles.bookingInfo}>
                                             <h4>Бронирование #{booking.id}</h4>
                                             <p><strong>Ресторан:</strong> {booking.restaurant_name || `Ресторан #${booking.table_id}`}</p>
-                                            <p><strong>Дата:</strong> {new Date(booking.date).toLocaleDateString()}</p>
-                                            <p><strong>Время:</strong> {booking.time}</p>
-                                            <p><strong>Гостей:</strong> {booking.guests_count}</p>
-                                            <p><strong>Статус:</strong> {booking.status}</p>
+                                            <p><strong>Дата:</strong> {formatDate(booking.date)}</p>
+                                            <p><strong>Время:</strong> {formatTime(booking.time)}</p>
+                                            <p><strong>Гостей:</strong> {booking.guests}</p>
+                                            <p><strong>Столик:</strong> #{booking.table_id}{booking.table_seats ? ` (${booking.table_seats} мест)` : ""}</p>
+                                            <p><strong>Статус:</strong> 
+                                                <span className={`${styles.status} ${getStatusClass(booking.status)}`}>
+                                                    {getStatusText(booking.status)}
+                                                </span>
+                                            </p>
+                                            <p><strong>Пользователь:</strong> {booking.user_email || "Не указан"}</p>
                                         </div>
                                         <div className={styles.bookingActions}>
                                             {booking.status === "active" && (
@@ -307,90 +656,9 @@ export default function AdminPage() {
                             </div>
                         </div>
                     )}
-
-                    {activeTab === "tables" && (
-                        <div className={styles.section}>
-                            <h2>Управление столиками</h2>
-                            
-                            {/* Форма добавления столика */}
-                            <div className={styles.createForm}>
-                                <h3>Добавить новый столик</h3>
-                                <form onSubmit={handleCreateTable}>
-                                    <div className={styles.formGrid}>
-                                        <select
-                                            value={newTable.restaurant_id}
-                                            onChange={(e) => setNewTable({...newTable, restaurant_id: parseInt(e.target.value)})}
-                                            required
-                                            className={styles.select}
-                                        >
-                                            <option value="">Выберите ресторан</option>
-                                            {restaurants.map(restaurant => (
-                                                <option key={restaurant.id} value={restaurant.id}>
-                                                    {restaurant.name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        <input
-                                            type="number"
-                                            placeholder="Количество мест"
-                                            min="1"
-                                            max="20"
-                                            value={newTable.seats}
-                                            onChange={(e) => setNewTable({...newTable, seats: parseInt(e.target.value)})}
-                                            required
-                                            className={styles.input}
-                                        />
-                                        <label className={styles.checkboxLabel}>
-                                            <input
-                                                type="checkbox"
-                                                checked={newTable.is_available}
-                                                onChange={(e) => setNewTable({...newTable, is_available: e.target.checked})}
-                                            />
-                                            Доступен для бронирования
-                                        </label>
-                                    </div>
-                                    <button type="submit" className={styles.submitButton}>
-                                        Добавить столик
-                                    </button>
-                                </form>
-                            </div>
-
-                            {/* Список столиков */}
-                            <div className={styles.tablesList}>
-                                <h3>Существующие столики</h3>
-                                {tables.map(table => (
-                                    <div key={table.id} className={styles.tableCard}>
-                                        <div className={styles.tableInfo}>
-                                            <h4>Столик #{table.id}</h4>
-                                            <p><strong>Ресторан:</strong> {getRestaurantName(table.restaurant_id)}</p>
-                                            <p><strong>Мест:</strong> {table.seats}</p>
-                                            <p><strong>Статус:</strong> 
-                                                <span className={table.is_available ? styles.available : styles.unavailable}>
-                                                    {table.is_available ? " Доступен" : " Недоступен"}
-                                                </span>
-                                            </p>
-                                        </div>
-                                        <div className={styles.tableActions}>
-                                            <button 
-                                                className={table.is_available ? styles.unavailableButton : styles.availableButton}
-                                                onClick={() => handleToggleTableAvailability(table.id)}
-                                            >
-                                                {table.is_available ? "Сделать недоступным" : "Сделать доступным"}
-                                            </button>
-                                            <button 
-                                                className={styles.deleteButton}
-                                                onClick={() => handleDeleteTable(table.id)}
-                                            >
-                                                Удалить
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
                 </div>
             </div>
+            <Footer />
         </>
     );
 } 

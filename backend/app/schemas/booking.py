@@ -18,6 +18,9 @@ class BookingRead(BookingBase):
     user_id: int
     table_id: int
     status: str
+    restaurant_name: Optional[str] = None
+    table_seats: Optional[int] = None
+    user_email: Optional[str] = None
 
     class Config:
         orm_mode = True

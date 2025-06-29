@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "../../../shared/store";
 import styles from "./restaurant-detail.module.css";
 import ReviewsSection from "./components/ReviewsSection";
+import Footer from "../../components/Footer";
 
 export default function RestaurantDetailPage() {
     const params = useParams();
@@ -24,16 +25,18 @@ export default function RestaurantDetailPage() {
         table_id: null
     });
 
+    const STATIC_BASE = "http://localhost:8000";
+
     useEffect(() => {
         fetchRestaurant();
     }, [params.id]);
 
     const fetchRestaurant = async () => {
+        setLoading(true);
         try {
             const response = await api.get(`/restaurants/${params.id}`);
             setRestaurant(response.data);
         } catch (error) {
-            console.error("Error fetching restaurant:", error);
         } finally {
             setLoading(false);
         }
@@ -46,11 +49,6 @@ export default function RestaurantDetailPage() {
             return;
         }
         try {
-            console.log("Запрашиваем временные слоты для:", {
-                date: bookingData.date,
-                guests: bookingData.guests
-            });
-            
             const response = await api.get(`/restaurants/${params.id}/available-time-slots`, {
                 params: {
                     date: bookingData.date,
@@ -58,12 +56,9 @@ export default function RestaurantDetailPage() {
                 }
             });
             
-            console.log("Получены временные слоты:", response.data);
-            
             setAvailableTimeSlots(response.data.time_slots);
             setBookingData((prev) => ({ ...prev, time: "", table_id: null }));
         } catch (error) {
-            console.error("Ошибка при получении временных слотов:", error);
             setAvailableTimeSlots([]);
             setBookingData((prev) => ({ ...prev, time: "", table_id: null }));
         }
@@ -190,7 +185,7 @@ export default function RestaurantDetailPage() {
                 <div className={styles.heroSection}>
                     <div className={styles.heroImage}>
                         <img 
-                            src={restaurant.image_url || "https://via.placeholder.com/1200x400?text=Ресторан"} 
+                            src={restaurant.image_url ? `${STATIC_BASE}${restaurant.image_url}` : `${STATIC_BASE}/static/restaurants/images/default-restaurant.jpg`}
                             alt={restaurant.name}
                             className={styles.mainImage}
                         />
@@ -217,13 +212,32 @@ export default function RestaurantDetailPage() {
                                 <span className={styles.value}>{restaurant.cuisine}</span>
                             </div>
                             <div className={styles.detail}>
-                                <span className={styles.label}>Ценовой диапазон:</span>
+                                <span className={styles.label}>Средний чек:</span>
                                 <span className={styles.value}>{restaurant.price_range}</span>
                             </div>
                             <div className={styles.detail}>
                                 <span className={styles.label}>Адрес:</span>
                                 <span className={styles.value}>{restaurant.location}</span>
                             </div>
+                            <div className={styles.detail}>
+                                <span className={styles.label}>Время работы:</span>
+                                <span className={styles.value}>
+                                    {restaurant.opening_time && restaurant.closing_time 
+                                        ? `${restaurant.opening_time.substring(0, 5)} - ${restaurant.closing_time.substring(0, 5)}`
+                                        : '10:00 - 22:00'
+                                    }
+                                </span>
+                            </div>
+                            {restaurant.phone && (
+                                <div className={styles.detail}>
+                                    <span className={styles.label}>Телефон:</span>
+                                    <span className={styles.value}>
+                                        <a href={`tel:${restaurant.phone}`} className={styles.phoneLink}>
+                                            {restaurant.phone}
+                                        </a>
+                                    </span>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -234,7 +248,7 @@ export default function RestaurantDetailPage() {
                             <div className={styles.gallery}>
                                 <div className={styles.mainGalleryImage}>
                                     <img 
-                                        src={galleryImages[activeImageIndex]} 
+                                        src={`${STATIC_BASE}${galleryImages[activeImageIndex]}`}
                                         alt={`${restaurant.name} - фото ${activeImageIndex + 1}`}
                                         className={styles.galleryMainImage}
                                     />
@@ -244,7 +258,7 @@ export default function RestaurantDetailPage() {
                                         {galleryImages.map((image, index) => (
                                             <img 
                                                 key={index}
-                                                src={image} 
+                                                src={`${STATIC_BASE}${image}`}
                                                 alt={`Фото ${index + 1}`}
                                                 className={`${styles.galleryThumbnail} ${activeImageIndex === index ? styles.activeThumbnail : ''}`}
                                                 onClick={() => setActiveImageIndex(index)}
@@ -263,7 +277,7 @@ export default function RestaurantDetailPage() {
                             <div className={styles.menuGallery}>
                                 <div className={styles.mainMenuImage}>
                                     <img 
-                                        src={menuImages[activeMenuIndex]} 
+                                        src={`${STATIC_BASE}${menuImages[activeMenuIndex]}`}
                                         alt={`Меню ${activeMenuIndex + 1}`}
                                         className={styles.menuMainImage}
                                     />
@@ -273,7 +287,7 @@ export default function RestaurantDetailPage() {
                                         {menuImages.map((image, index) => (
                                             <img 
                                                 key={index}
-                                                src={image} 
+                                                src={`${STATIC_BASE}${image}`}
                                                 alt={`Меню ${index + 1}`}
                                                 className={`${styles.menuThumbnail} ${activeMenuIndex === index ? styles.activeThumbnail : ''}`}
                                                 onClick={() => setActiveMenuIndex(index)}
@@ -373,6 +387,7 @@ export default function RestaurantDetailPage() {
                 {/* Секция отзывов */}
                 <ReviewsSection restaurantId={restaurant.id} />
             </div>
+            <Footer />
         </>
     );
 } 

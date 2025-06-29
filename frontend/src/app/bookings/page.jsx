@@ -4,27 +4,46 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "../../shared/store";
 import api from "../../shared/api";
 import styles from "./bookings.module.css";
+import Footer from "../components/Footer";
 
 export default function BookingsPage() {
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [authLoading, setAuthLoading] = useState(true);
     const { user } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
-        if (!user) {
-            router.push("/login");
-            return;
+        // Проверяем, есть ли токен в localStorage
+        const token = localStorage.getItem("token");
+        const userStr = localStorage.getItem("user");
+        
+        if (token && userStr) {
+            // Если есть токен и пользователь, ждем восстановления состояния
+            setAuthLoading(false);
+        } else {
+            // Если нет токена, сразу перенаправляем
+            setAuthLoading(false);
+            if (!user) {
+                router.push("/login");
+                return;
+            }
         }
-        fetchBookings();
-    }, [user]);
+    }, []);
+
+    useEffect(() => {
+        if (!authLoading && user) {
+            fetchBookings();
+        } else if (!authLoading && !user) {
+            router.push("/login");
+        }
+    }, [user, authLoading]);
 
     const fetchBookings = async () => {
         try {
             const response = await api.get("/bookings/");
             setBookings(response.data);
         } catch (error) {
-            console.error("Error fetching bookings:", error);
             if (error.response?.status === 401) {
                 setBookings([]);
             }
@@ -34,11 +53,18 @@ export default function BookingsPage() {
     };
 
     const cancelBooking = async (bookingId) => {
+        const booking = bookings.find(b => b.id === bookingId);
+        const action = booking?.status === "active" ? "отменить" : "удалить";
+        
+        if (!confirm(`Вы уверены, что хотите ${action} это бронирование?`)) {
+            return;
+        }
+        
         try {
             await api.delete(`/bookings/${bookingId}`);
             fetchBookings();
         } catch (error) {
-            // Ошибка при отмене бронирования, можно обработать иначе
+            console.error(`Ошибка при ${action} бронирования:`, error);
         }
     };
 
@@ -76,6 +102,17 @@ export default function BookingsPage() {
                 return "";
         }
     };
+
+    if (authLoading) {
+        return (
+            <>
+                <div className={styles.background}></div>
+                <div className={styles.container}>
+                    <div className={styles.loading}>Проверка авторизации...</div>
+                </div>
+            </>
+        );
+    }
 
     if (!user) {
         return null;
@@ -154,21 +191,20 @@ export default function BookingsPage() {
                                     </div>
                                 </div>
                                 
-                                {booking.status === "active" && (
-                                    <div className={styles.bookingActions}>
-                                        <button 
-                                            className={styles.cancelButton}
-                                            onClick={() => cancelBooking(booking.id)}
-                                        >
-                                            Отменить
-                                        </button>
-                                    </div>
-                                )}
+                                <div className={styles.bookingActions}>
+                                    <button 
+                                        className={styles.deleteButton}
+                                        onClick={() => cancelBooking(booking.id)}
+                                    >
+                                        {booking.status === "active" ? "Отменить" : "Удалить"}
+                                    </button>
+                                </div>
                             </div>
                         ))}
                     </div>
                 )}
             </div>
+            <Footer />
         </>
     );
 } 

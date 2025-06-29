@@ -8,9 +8,12 @@
 }
 
 .container {
-  width: 100%;
   min-height: 100vh;
-  padding: 0 5vw 40px 5vw;
+  display: flex;
+  flex-direction: column;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 120px 20px 40px 20px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   box-sizing: border-box;
 }
@@ -448,4 +451,168 @@
   .tableForm {
     flex-direction: column;
   }
+}
+
+.imageSection {
+  margin: 20px 0;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.imageSection h4 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.imageInput {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.imageInput input[type="url"] {
+  flex: 1;
+  min-width: 200px;
+}
+
+.imageInput input[type="file"] {
+  flex: 0 0 auto;
+}
+
+.addButton {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.3s;
+}
+
+.addButton:hover {
+  background: #218838;
+}
+
+.imageList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.imageItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 5px;
+  font-size: 0.9rem;
+}
+
+.imageItem span {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.removeButton {
+  background: #dc3545;
+  color: white;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 12px;
+  margin-left: 10px;
+  transition: background 0.3s;
+}
+
+.removeButton:hover {
+  background: #c82333;
+}
+
+.formActions {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.cancelButton {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.3s;
+}
+
+.cancelButton:hover {
+  background: #5a6268;
+}
+
+.status {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.statusActive {
+  background: #d4edda;
+  color: #155724;
+}
+
+.statusCancelled {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.statusCompleted {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.restaurantInfo p, .bookingInfo p {
+  margin: 5px 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.restaurantInfo strong {
+  color: #333;
+  font-weight: 600;
+}
+
+.bookingInfo strong {
+  color: #333;
+  font-weight: 600;
+}
+
+.fileInput {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  background: white;
+  cursor: pointer;
+}
+
+.fileInput:hover {
+  border-color: #007bff;
+}
+
+.helpText {
+  font-size: 0.8rem;
+  color: #666;
+  margin: 5px 0 0 0;
+  font-style: italic;
 } 

@@ -58,7 +58,7 @@ export default function Navigation() {
                     {user ? (
                         <div className={styles.userMenu}>
                             <span className={styles.userName}>
-                                {user.name} {user.role === "admin" && "👑"}
+                                {user.name} {user.role === "admin" && <span className={styles.adminBadge}>Admin</span>}
                             </span>
                             <button onClick={handleLogout} className={styles.logoutButton}>
                                 Выйти
