@@ -69,12 +69,27 @@ def create_booking(booking: BookingCreate, db: Session = Depends(get_db), user=D
 
 @router.get("/", response_model=List[BookingRead])
 def list_bookings(db: Session = Depends(get_db), user=Depends(get_current_active_user)):
-    return db.query(Booking).filter(Booking.user_id == user.id).all()
+    bookings = db.query(Booking).filter(Booking.user_id == user.id).all()
+    
+    
+    for booking in bookings:
+        if booking.table and booking.table.restaurant:
+            booking.restaurant_name = booking.table.restaurant.name
+            booking.table_seats = booking.table.seats
+    
+    return bookings
 
 
 @router.get("/all", response_model=List[BookingRead])
 def list_all_bookings(db: Session = Depends(get_db), admin=Depends(get_current_admin)):
-    return db.query(Booking).all()
+    bookings = db.query(Booking).all()
+    
+    for booking in bookings:
+        if booking.table and booking.table.restaurant:
+            booking.restaurant_name = booking.table.restaurant.name
+            booking.table_seats = booking.table.seats
+    
+    return bookings
 
 
 @router.get("/{booking_id}", response_model=BookingRead)
@@ -83,6 +98,12 @@ def get_booking(booking_id: int, db: Session = Depends(get_db), user=Depends(get
         Booking.id == booking_id, Booking.user_id == user.id).first()
     if not booking:
         raise HTTPException(status_code=404, detail="Booking not found")
+    
+    # Добавляем информацию о ресторане
+    if booking.table and booking.table.restaurant:
+        booking.restaurant_name = booking.table.restaurant.name
+        booking.table_seats = booking.table.seats
+    
     return booking
 
 
@@ -114,9 +135,14 @@ def delete_booking(booking_id: int, db: Session = Depends(get_db), user=Depends(
     if not booking:
         raise HTTPException(status_code=404, detail="Booking not found")
     
-    booking.status = "cancelled"
-    db.commit()
-    return {"ok": True}
+    if booking.status == "active":
+        booking.status = "cancelled"
+        db.commit()
+        return {"message": "Бронирование отменено"}
+    else:
+        db.delete(booking)
+        db.commit()
+        return {"message": "Бронирование удалено"}
 
 
 @router.get("/restaurant/{restaurant_id}/available-tables")

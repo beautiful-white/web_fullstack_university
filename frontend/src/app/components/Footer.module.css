@@ -1,9 +1,18 @@
 /* Footer */
 .footer {
-  background: #333;
+  background: #2d3748;
   color: white;
-  padding: 60px 20px 20px;
+  padding: 40px 0 20px;
   margin-top: auto;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
 }
 
 .footerContent {
@@ -51,10 +60,16 @@
 }
 
 .footerBottom {
-  border-top: 1px solid #555;
-  padding-top: 20px;
+  border-top: 1px solid #4a5568;
+  padding: 20px 0;
+  margin-top: 30px;
   text-align: center;
-  color: #999;
+}
+
+.footerBottom p {
+  margin: 0;
+  color: #a0aec0;
+  font-size: 0.9rem;
 }
 
 /* Responsive Design */

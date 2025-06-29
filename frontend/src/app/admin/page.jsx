@@ -13,6 +13,7 @@ export default function AdminPage() {
     const [restaurants, setRestaurants] = useState([]);
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [authLoading, setAuthLoading] = useState(true);
     const [editingRestaurant, setEditingRestaurant] = useState(null);
     const [newRestaurant, setNewRestaurant] = useState({
         name: "",
@@ -31,12 +32,28 @@ export default function AdminPage() {
     });
 
     useEffect(() => {
-        if (!user || user.role !== "admin") {
-            router.push("/login");
-            return;
+        // Проверяем, есть ли токен в localStorage
+        const token = localStorage.getItem("token");
+        const userStr = localStorage.getItem("user");
+        if (token && userStr) {
+            setAuthLoading(false);
+        } else {
+            setAuthLoading(false);
+            if (!user) {
+                router.push("/login");
+                return;
+            }
         }
-        fetchData();
-    }, [user, router]);
+    }, []);
+
+    useEffect(() => {
+        if (!authLoading && user && user.role === "admin") {
+            fetchData();
+        } else if (!authLoading && (!user || user.role !== "admin")) {
+            router.push("/login");
+        }
+        // eslint-disable-next-line
+    }, [user, authLoading]);
 
     const fetchData = async () => {
         setLoading(true);
@@ -181,12 +198,16 @@ export default function AdminPage() {
         }
     };
 
-    if (!user || user.role !== "admin") {
+    if (authLoading) {
         return (
             <div className={styles.container}>
-                <div className={styles.loading}>Проверка прав доступа...</div>
+                <div className={styles.loading}>Проверка авторизации...</div>
             </div>
         );
+    }
+
+    if (!user || user.role !== "admin") {
+        return null;
     }
 
     if (loading) {

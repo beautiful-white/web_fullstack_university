@@ -9,7 +9,7 @@ export default function Footer() {
 
     return (
         <div className={styles.footer}>
-            <div className={styles.footerContent}>
+            <div className={styles.container}>
                 <div className={styles.footerSection}>
                     <h3>О нас</h3>
                     <p>Мы помогаем жителям и гостям Владивостока находить лучшие рестораны города и наслаждаться изысканной кухней</p>
@@ -29,7 +29,9 @@ export default function Footer() {
                 </div>
             </div>
             <div className={styles.footerBottom}>
-                <p>&copy; 2024 Рестораны Владивостока. Все права защищены.</p>
+                <div className={styles.container}>
+                    <p>&copy; 2024 Рестораны Владивостока. Все права защищены.</p>
+                </div>
             </div>
         </div>
     );
