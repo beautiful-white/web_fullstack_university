@@ -4,6 +4,7 @@ import api from "../../../shared/api";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "../../../shared/store";
 import styles from "./restaurant-detail.module.css";
+import ReviewsSection from "./components/ReviewsSection";
 
 export default function RestaurantDetailPage() {
     const params = useParams();
@@ -13,6 +14,9 @@ export default function RestaurantDetailPage() {
     const [loading, setLoading] = useState(true);
     const [availableTables, setAvailableTables] = useState([]);
     const [loadingTables, setLoadingTables] = useState(false);
+    const [activeImageIndex, setActiveImageIndex] = useState(0);
+    const [activeMenuIndex, setActiveMenuIndex] = useState(0);
+    const [availableTimeSlots, setAvailableTimeSlots] = useState([]);
     const [bookingData, setBookingData] = useState({
         date: "",
         time: "",
@@ -35,11 +39,45 @@ export default function RestaurantDetailPage() {
         }
     };
 
-    const fetchAvailableTables = async () => {
-        if (!bookingData.date || !bookingData.time || !bookingData.guests) {
+    const fetchAvailableTimeSlots = async () => {
+        if (!bookingData.date || !bookingData.guests) {
+            setAvailableTimeSlots([]);
+            setBookingData((prev) => ({ ...prev, time: "", table_id: null }));
             return;
         }
+        try {
+            console.log("Запрашиваем временные слоты для:", {
+                date: bookingData.date,
+                guests: bookingData.guests
+            });
+            
+            const response = await api.get(`/restaurants/${params.id}/available-time-slots`, {
+                params: {
+                    date: bookingData.date,
+                    guests: bookingData.guests
+                }
+            });
+            
+            console.log("Получены временные слоты:", response.data);
+            
+            setAvailableTimeSlots(response.data.time_slots);
+            setBookingData((prev) => ({ ...prev, time: "", table_id: null }));
+        } catch (error) {
+            console.error("Ошибка при получении временных слотов:", error);
+            setAvailableTimeSlots([]);
+            setBookingData((prev) => ({ ...prev, time: "", table_id: null }));
+        }
+    };
 
+    useEffect(() => {
+        fetchAvailableTimeSlots();
+    }, [bookingData.date, bookingData.guests]);
+
+    const fetchAvailableTables = async () => {
+        if (!bookingData.date || !bookingData.time || !bookingData.guests) {
+            setAvailableTables([]);
+            return;
+        }
         setLoadingTables(true);
         try {
             const response = await api.get(`/restaurants/${params.id}/available-tables`, {
@@ -51,7 +89,6 @@ export default function RestaurantDetailPage() {
             });
             setAvailableTables(response.data.available_tables);
         } catch (error) {
-            console.error("Error fetching available tables:", error);
             setAvailableTables([]);
         } finally {
             setLoadingTables(false);
@@ -59,32 +96,33 @@ export default function RestaurantDetailPage() {
     };
 
     useEffect(() => {
-        fetchAvailableTables();
+        if (bookingData.time) fetchAvailableTables();
     }, [bookingData.date, bookingData.time, bookingData.guests]);
 
     const handleBooking = async (e) => {
         e.preventDefault();
         if (!user) {
+            alert("Пожалуйста, войдите в систему для бронирования");
             router.push("/login");
             return;
         }
-
         if (!bookingData.table_id) {
             alert("Пожалуйста, выберите столик");
             return;
         }
-
         try {
             await api.post("/bookings/", {
                 table_id: bookingData.table_id,
                 date: bookingData.date,
                 time: bookingData.time,
-                guests_count: bookingData.guests
+                guests: bookingData.guests
             });
-            alert("Бронирование успешно создано!");
             router.push("/bookings");
         } catch (error) {
-            if (error.response?.data?.detail) {
+            if (error.response?.status === 401) {
+                alert("Пожалуйста, войдите в систему");
+                router.push("/login");
+            } else if (error.response?.data?.detail) {
                 alert(error.response.data.detail);
             } else {
                 alert("Ошибка при создании бронирования");
@@ -104,6 +142,28 @@ export default function RestaurantDetailPage() {
         return stars;
     };
 
+    const getGalleryImages = () => {
+        if (!restaurant) return [];
+        if (restaurant.gallery && Array.isArray(restaurant.gallery)) {
+            return restaurant.gallery;
+        }
+        if (restaurant.gallery && typeof restaurant.gallery === 'string') {
+            return restaurant.gallery.split(',').filter(url => url.trim());
+        }
+        return restaurant.image_url ? [restaurant.image_url] : [];
+    };
+
+    const getMenuImages = () => {
+        if (!restaurant) return [];
+        if (restaurant.menu_images && Array.isArray(restaurant.menu_images)) {
+            return restaurant.menu_images;
+        }
+        if (restaurant.menu_images && typeof restaurant.menu_images === 'string') {
+            return restaurant.menu_images.split(',').filter(url => url.trim());
+        }
+        return [];
+    };
+
     if (loading) {
         return (
             <div className={styles.container}>
@@ -120,6 +180,9 @@ export default function RestaurantDetailPage() {
         );
     }
 
+    const galleryImages = getGalleryImages();
+    const menuImages = getMenuImages();
+
     return (
         <div className={styles.container}>
             <div className={styles.header}>
@@ -128,18 +191,30 @@ export default function RestaurantDetailPage() {
                 </button>
             </div>
 
-            <div className={styles.content}>
-                <div className={styles.imageSection}>
+            {/* Основная информация о ресторане */}
+            <div className={styles.heroSection}>
+                <div className={styles.heroImage}>
                     <img 
-                        src={restaurant.image_url || "https://via.placeholder.com/600x400?text=Ресторан"} 
+                        src={restaurant.image_url || "https://via.placeholder.com/1200x400?text=Ресторан"} 
                         alt={restaurant.name}
-                        className={styles.restaurantImage}
+                        className={styles.mainImage}
                     />
+                    <div className={styles.heroOverlay}>
+                        <h1 className={styles.restaurantName}>{restaurant.name}</h1>
+                        <div className={styles.heroRating}>
+                            {renderStars(restaurant.rating)}
+                            <span className={styles.ratingText}>({restaurant.rating})</span>
+                        </div>
+                    </div>
                 </div>
+            </div>
 
+            <div className={styles.content}>
                 <div className={styles.infoSection}>
-                    <h1 className={styles.restaurantName}>{restaurant.name}</h1>
-                    <p className={styles.description}>{restaurant.description}</p>
+                    <div className={styles.description}>
+                        <h2>О ресторане</h2>
+                        <p>{restaurant.description}</p>
+                    </div>
                     
                     <div className={styles.details}>
                         <div className={styles.detail}>
@@ -152,19 +227,71 @@ export default function RestaurantDetailPage() {
                         </div>
                         <div className={styles.detail}>
                             <span className={styles.label}>Адрес:</span>
-                            <span className={styles.value}>{restaurant.address}</span>
-                        </div>
-                        <div className={styles.detail}>
-                            <span className={styles.label}>Рейтинг:</span>
-                            <div className={styles.rating}>
-                                {renderStars(restaurant.rating)}
-                                <span className={styles.ratingText}>({restaurant.rating})</span>
-                            </div>
+                            <span className={styles.value}>{restaurant.location}</span>
                         </div>
                     </div>
                 </div>
+
+                {/* Галерея фотографий */}
+                {galleryImages.length > 0 && (
+                    <div className={styles.gallerySection}>
+                        <h2>Фотографии ресторана</h2>
+                        <div className={styles.gallery}>
+                            <div className={styles.mainGalleryImage}>
+                                <img 
+                                    src={galleryImages[activeImageIndex]} 
+                                    alt={`${restaurant.name} - фото ${activeImageIndex + 1}`}
+                                    className={styles.galleryMainImage}
+                                />
+                            </div>
+                            {galleryImages.length > 1 && (
+                                <div className={styles.galleryThumbnails}>
+                                    {galleryImages.map((image, index) => (
+                                        <img 
+                                            key={index}
+                                            src={image} 
+                                            alt={`Фото ${index + 1}`}
+                                            className={`${styles.galleryThumbnail} ${activeImageIndex === index ? styles.activeThumbnail : ''}`}
+                                            onClick={() => setActiveImageIndex(index)}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {/* Меню ресторана */}
+                {menuImages.length > 0 && (
+                    <div className={styles.menuSection}>
+                        <h2>Меню ресторана</h2>
+                        <div className={styles.menuGallery}>
+                            <div className={styles.mainMenuImage}>
+                                <img 
+                                    src={menuImages[activeMenuIndex]} 
+                                    alt={`Меню ${activeMenuIndex + 1}`}
+                                    className={styles.menuMainImage}
+                                />
+                            </div>
+                            {menuImages.length > 1 && (
+                                <div className={styles.menuThumbnails}>
+                                    {menuImages.map((image, index) => (
+                                        <img 
+                                            key={index}
+                                            src={image} 
+                                            alt={`Меню ${index + 1}`}
+                                            className={`${styles.menuThumbnail} ${activeMenuIndex === index ? styles.activeThumbnail : ''}`}
+                                            onClick={() => setActiveMenuIndex(index)}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
             </div>
 
+            {/* Секция бронирования */}
             <div className={styles.bookingSection}>
                 <h2 className={styles.bookingTitle}>Забронировать столик</h2>
                 <form onSubmit={handleBooking} className={styles.bookingForm}>
@@ -180,19 +307,6 @@ export default function RestaurantDetailPage() {
                             min={new Date().toISOString().split('T')[0]}
                         />
                     </div>
-                    
-                    <div className={styles.formGroup}>
-                        <label htmlFor="time">Время</label>
-                        <input
-                            type="time"
-                            id="time"
-                            value={bookingData.time}
-                            onChange={(e) => setBookingData({...bookingData, time: e.target.value, table_id: null})}
-                            required
-                            className={styles.input}
-                        />
-                    </div>
-                    
                     <div className={styles.formGroup}>
                         <label htmlFor="guests">Количество гостей</label>
                         <select
@@ -206,8 +320,25 @@ export default function RestaurantDetailPage() {
                             ))}
                         </select>
                     </div>
+                    <div className={styles.formGroup}>
+                        <label htmlFor="time">Время</label>
+                        <select
+                            id="time"
+                            value={bookingData.time}
+                            onChange={(e) => setBookingData({...bookingData, time: e.target.value, table_id: null})}
+                            required
+                            className={styles.select}
+                            disabled={!availableTimeSlots.length}
+                        >
+                            <option value="">Выберите время</option>
+                            {availableTimeSlots.map(slot => (
+                                <option key={slot.start_time} value={slot.start_time}>
+                                    {slot.start_time.substring(0,5)} - {slot.end_time.substring(0,5)}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                 </form>
-
                 {/* Выбор столика */}
                 {bookingData.date && bookingData.time && (
                     <div className={styles.tablesSection}>
@@ -234,7 +365,6 @@ export default function RestaurantDetailPage() {
                         )}
                     </div>
                 )}
-                
                 <button 
                     type="submit" 
                     className={styles.bookingButton}
@@ -244,6 +374,9 @@ export default function RestaurantDetailPage() {
                     Забронировать
                 </button>
             </div>
+
+            {/* Секция отзывов */}
+            <ReviewsSection restaurantId={restaurant.id} />
         </div>
     );
 } 

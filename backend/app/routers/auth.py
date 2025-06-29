@@ -39,10 +39,8 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
                    hashed_password=hashed_password, role=user.role)
     db.add(db_user)
     db.commit()
-    print("Сохранение пользователя в базу данных")
     db.refresh(db_user)
     
-    # Создаем токен доступа с дополнительной информацией
     access_token = create_access_token(data={
         "sub": str(db_user.id),
         "email": db_user.email,
@@ -59,22 +57,15 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login")
 def login(login_data: LoginRequest, db: Session = Depends(get_db)):
-    print(f"Попытка входа для email: {login_data.username}")
-    
     user = db.query(User).filter(User.email == login_data.username).first()
     if not user:
-        print(f"Пользователь с email {login_data.username} не найден")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password")
-    
-    print(f"Пользователь найден: {user.email}, проверяем пароль")
     
     if not verify_password(login_data.password, user.hashed_password):
-        print(f"Неверный пароль для пользователя {user.email}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password")
     
-    print(f"Пароль верный, создаем токен для пользователя {user.email}")
     access_token = create_access_token(data={
         "sub": str(user.id),
         "email": user.email,

@@ -40,8 +40,7 @@ def create_restaurant(restaurant: RestaurantCreate, db: Session = Depends(get_db
 
 
 def haversine(lat1, lon1, lat2, lon2):
-    """Вычисляет расстояние между двумя точками на сфере (в километрах)"""
-    R = 6371  # Радиус Земли в км
+    R = 6371
     lat1, lon1, lat2, lon2 = map(float, [lat1, lon1, lat2, lon2])
     dlat = radians(lat2 - lat1)
     dlon = radians(lon2 - lon1)
@@ -63,22 +62,8 @@ def list_restaurants(
     sort_by: Optional[str] = Query("distance", description="Сортировка: distance, rating, name"),
     sort_order: Optional[str] = Query("asc", description="Порядок сортировки: asc, desc")
 ):
-    """
-    Получить список ресторанов с возможностью фильтрации и сортировки.
-    
-    - **location**: Фильтр по местоположению (текст)
-    - **cuisine**: Фильтр по типу кухни
-    - **price_range**: Фильтр по ценовому диапазону
-    - **min_rating**: Минимальный рейтинг (0.0 - 5.0)
-    - **lat**: Широта пользователя для расчета расстояния
-    - **lon**: Долгота пользователя для расчета расстояния
-    - **radius**: Радиус поиска в километрах
-    - **sort_by**: Поле для сортировки (distance, rating, name)
-    - **sort_order**: Порядок сортировки (asc, desc)
-    """
     query = db.query(Restaurant)
     
-    # Применяем фильтры
     if location:
         query = query.filter(Restaurant.location.ilike(f"%{location}%"))
     if cuisine:
@@ -90,26 +75,20 @@ def list_restaurants(
     
     restaurants = query.all()
     
-    # Если переданы координаты, добавляем расстояние и фильтруем по радиусу
     if lat is not None and lon is not None:
-        # Фильтруем рестораны с координатами
         restaurants_with_coords = []
         for r in restaurants:
             if r.latitude is not None and r.longitude is not None:
                 distance = haversine(lat, lon, r.latitude, r.longitude)
-                # Если указан радиус, фильтруем по нему
                 if radius is None or distance <= radius:
                     restaurants_with_coords.append((r, distance))
         
-        # Сортируем по расстоянию
         if sort_by == "distance":
             reverse = sort_order == "desc"
             restaurants_with_coords.sort(key=lambda x: x[1], reverse=reverse)
         
-        # Возвращаем только рестораны, убирая расстояние из кортежа
         restaurants = [r[0] for r in restaurants_with_coords]
     else:
-        # Если координаты не переданы, применяем другие сортировки
         if sort_by == "rating":
             reverse = sort_order == "desc"
             restaurants.sort(key=lambda r: r.rating or 0, reverse=reverse)
@@ -128,17 +107,8 @@ def get_nearby_restaurants(
     limit: int = Query(20, description="Максимальное количество результатов"),
     db: Session = Depends(get_db)
 ):
-    """
-    Получить ближайшие рестораны в указанном радиусе.
-    
-    - **lat**: Широта пользователя
-    - **lon**: Долгота пользователя  
-    - **radius**: Радиус поиска в километрах
-    - **limit**: Максимальное количество результатов
-    """
     restaurants = db.query(Restaurant).all()
     
-    # Вычисляем расстояние для каждого ресторана с координатами
     nearby_restaurants = []
     for r in restaurants:
         if r.latitude is not None and r.longitude is not None:
@@ -146,7 +116,6 @@ def get_nearby_restaurants(
             if distance <= radius:
                 nearby_restaurants.append((r, distance))
     
-    # Сортируем по расстоянию и ограничиваем количество
     nearby_restaurants.sort(key=lambda x: x[1])
     nearby_restaurants = nearby_restaurants[:limit]
     
@@ -169,16 +138,10 @@ def get_restaurant_available_time_slots(
     guests: int,
     db: Session = Depends(get_db)
 ):
-    """
-    Получает доступные временные слоты для ресторана на указанную дату.
-    Слоты генерируются на основе времени работы ресторана и длительности слота.
-    """
-    # Проверяем, что ресторан существует
     restaurant = db.query(Restaurant).filter(Restaurant.id == restaurant_id).first()
     if not restaurant:
         raise HTTPException(status_code=404, detail="Restaurant not found")
     
-    # Получаем доступные временные слоты
     time_slots = get_available_time_slots(restaurant, date, guests, db)
     
     return AvailableTimeSlotsResponse(
@@ -197,13 +160,10 @@ def get_restaurant_available_tables(
     guests: int, 
     db: Session = Depends(get_db)
 ):
-    """Получает доступные столики для ресторана на указанную дату и время"""
-    # Проверяем, что ресторан существует
     restaurant = db.query(Restaurant).filter(Restaurant.id == restaurant_id).first()
     if not restaurant:
         raise HTTPException(status_code=404, detail="Restaurant not found")
     
-    # Получаем все столики ресторана с достаточной вместимостью
     available_tables = db.query(Table).filter(
         and_(
             Table.restaurant_id == restaurant_id,
@@ -212,7 +172,6 @@ def get_restaurant_available_tables(
         )
     ).all()
     
-    # Фильтруем столики, которые уже забронированы на это время
     booked_table_ids = db.query(Booking.table_id).filter(
         and_(
             Booking.date == date,
@@ -223,7 +182,6 @@ def get_restaurant_available_tables(
     
     booked_table_ids = [table_id[0] for table_id in booked_table_ids]
     
-    # Возвращаем только свободные столики
     free_tables = [table for table in available_tables if table.id not in booked_table_ids]
     
     return AvailableTablesResponse(
@@ -273,12 +231,10 @@ def upload_restaurant_photo(restaurant_id: int, file: UploadFile = File(...), db
     if not restaurant:
         raise HTTPException(status_code=404, detail="Restaurant not found")
     
-    # Сохраняем файл
     file_path = os.path.join(UPLOAD_DIR, f"restaurant_{restaurant_id}_{file.filename}")
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
     
-    # Обновляем URL изображения в базе
     restaurant.image_url = f"/static/restaurants/restaurant_{restaurant_id}_{file.filename}"
     db.commit()
     

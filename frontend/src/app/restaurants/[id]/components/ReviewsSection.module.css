@@ -1,0 +1,325 @@
+.container {
+    margin-top: 40px;
+    padding: 30px;
+    background: #f8f9fa;
+    border-radius: 12px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.title {
+    font-size: 1.8rem;
+    color: #333;
+    margin: 0;
+}
+
+.addReviewButton {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.addReviewButton:hover {
+    background: #218838;
+}
+
+.reviewForm {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.formTitle {
+    font-size: 1.3rem;
+    color: #333;
+    margin: 0 0 20px 0;
+}
+
+.ratingSection {
+    margin-bottom: 20px;
+}
+
+.ratingLabel {
+    display: block;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.starSelector {
+    display: flex;
+    gap: 5px;
+}
+
+.starButton {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: #ddd;
+    cursor: pointer;
+    transition: color 0.3s;
+    padding: 0;
+    line-height: 1;
+}
+
+.starButton:hover {
+    color: #ffd700;
+}
+
+.starSelected {
+    color: #ffd700;
+}
+
+.commentSection {
+    margin-bottom: 20px;
+}
+
+.commentLabel {
+    display: block;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.commentInput {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color 0.3s;
+}
+
+.commentInput:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+.formActions {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+}
+
+.cancelButton {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.cancelButton:hover {
+    background: #5a6268;
+}
+
+.submitButton {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.submitButton:hover:not(:disabled) {
+    background: #0056b3;
+}
+
+.submitButton:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+}
+
+.userReview {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border: 2px solid #28a745;
+}
+
+.userReviewHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.userReviewHeader h3 {
+    margin: 0;
+    color: #28a745;
+    font-size: 1.2rem;
+}
+
+.userReviewActions {
+    display: flex;
+    gap: 10px;
+}
+
+.editButton {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.editButton:hover {
+    background: #0056b3;
+}
+
+.deleteButton {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.deleteButton:hover {
+    background: #c82333;
+}
+
+.reviewContent {
+    margin-top: 10px;
+}
+
+.reviewRating {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 10px;
+}
+
+.starFilled {
+    color: #ffd700;
+    font-size: 1.2rem;
+}
+
+.starEmpty {
+    color: #ddd;
+    font-size: 1.2rem;
+}
+
+.reviewComment {
+    color: #333;
+    line-height: 1.6;
+    margin: 10px 0;
+}
+
+.reviewDate {
+    color: #666;
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
+.reviewsList {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.noReviews {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    padding: 40px;
+    background: white;
+    border-radius: 10px;
+}
+
+.reviewCard {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.reviewHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.reviewAuthor {
+    font-weight: 600;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+.loading {
+    text-align: center;
+    color: #666;
+    padding: 40px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+    }
+    
+    .header {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+    
+    .title {
+        font-size: 1.5rem;
+    }
+    
+    .formActions {
+        flex-direction: column;
+    }
+    
+    .userReviewHeader {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .userReviewActions {
+        align-self: stretch;
+        justify-content: center;
+    }
+    
+    .reviewHeader {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+} 

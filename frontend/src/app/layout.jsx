@@ -1,4 +1,6 @@
 import React from 'react';
+import ClientProviders from './components/ClientProviders';
+import Navigation from './components/Navigation';
 import "./globals.css";
 
 export const metadata = {
@@ -10,7 +12,12 @@ export default function RootLayout({ children }) {
   return (
     <html lang="ru">
       <body>
-        {children}
+        <ClientProviders>
+          <Navigation />
+          <main>
+            {children}
+          </main>
+        </ClientProviders>
       </body>
     </html>
   );

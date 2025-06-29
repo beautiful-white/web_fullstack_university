@@ -20,7 +20,6 @@ def get_db():
 
 
 def update_restaurant_rating(db: Session, restaurant_id: int):
-    """Обновляет средний рейтинг ресторана на основе всех отзывов"""
     avg_rating = db.query(func.avg(Review.rating)).filter(
         Review.restaurant_id == restaurant_id
     ).scalar()
@@ -33,7 +32,6 @@ def update_restaurant_rating(db: Session, restaurant_id: int):
 
 @router.post("/", response_model=ReviewRead)
 def create_review(review: ReviewCreate, db: Session = Depends(get_db), user=Depends(get_current_active_user)):
-    # Проверяем, не оставлял ли пользователь уже отзыв для этого ресторана
     exists = db.query(Review).filter(
         Review.user_id == user.id,
         Review.restaurant_id == review.restaurant_id
@@ -44,13 +42,11 @@ def create_review(review: ReviewCreate, db: Session = Depends(get_db), user=Depe
             status_code=400, detail="Вы уже оставляли отзыв для этого ресторана"
         )
     
-    # Проверяем валидность рейтинга
     if review.rating < 1 or review.rating > 5:
         raise HTTPException(
             status_code=400, detail="Рейтинг должен быть от 1 до 5"
         )
     
-    # Создаем отзыв
     db_review = Review(
         user_id=user.id,
         restaurant_id=review.restaurant_id,
@@ -61,10 +57,8 @@ def create_review(review: ReviewCreate, db: Session = Depends(get_db), user=Depe
     db.commit()
     db.refresh(db_review)
     
-    # Обновляем рейтинг ресторана
     update_restaurant_rating(db, review.restaurant_id)
     
-    # Добавляем имя пользователя
     db_review.user_name = user.name
     
     return db_review
@@ -72,12 +66,10 @@ def create_review(review: ReviewCreate, db: Session = Depends(get_db), user=Depe
 
 @router.get("/restaurant/{restaurant_id}", response_model=List[ReviewRead])
 def get_reviews_for_restaurant(restaurant_id: int, db: Session = Depends(get_db)):
-    """Получает все отзывы для ресторана"""
     reviews = db.query(Review).filter(
         Review.restaurant_id == restaurant_id
     ).order_by(Review.created_at.desc()).all()
     
-    # Добавляем имена пользователей
     for review in reviews:
         if review.user:
             review.user_name = review.user.name
@@ -92,7 +84,6 @@ def update_review(
     db: Session = Depends(get_db), 
     user=Depends(get_current_active_user)
 ):
-    """Обновляет отзыв пользователя"""
     db_review = db.query(Review).filter(
         Review.id == review_id,
         Review.user_id == user.id
@@ -101,13 +92,11 @@ def update_review(
     if not db_review:
         raise HTTPException(status_code=404, detail="Отзыв не найден")
     
-    # Проверяем валидность рейтинга
     if review_update.rating and (review_update.rating < 1 or review_update.rating > 5):
         raise HTTPException(
             status_code=400, detail="Рейтинг должен быть от 1 до 5"
         )
     
-    # Обновляем отзыв
     if review_update.rating is not None:
         db_review.rating = review_update.rating
     if review_update.comment is not None:
@@ -116,10 +105,8 @@ def update_review(
     db.commit()
     db.refresh(db_review)
     
-    # Обновляем рейтинг ресторана
     update_restaurant_rating(db, db_review.restaurant_id)
     
-    # Добавляем имя пользователя
     db_review.user_name = user.name
     
     return db_review
@@ -127,7 +114,6 @@ def update_review(
 
 @router.delete("/{review_id}")
 def delete_review(review_id: int, db: Session = Depends(get_db), user=Depends(get_current_active_user)):
-    """Удаляет отзыв пользователя"""
     db_review = db.query(Review).filter(
         Review.id == review_id,
         Review.user_id == user.id
@@ -140,7 +126,6 @@ def delete_review(review_id: int, db: Session = Depends(get_db), user=Depends(ge
     db.delete(db_review)
     db.commit()
     
-    # Обновляем рейтинг ресторана
     update_restaurant_rating(db, restaurant_id)
     
     return {"message": "Отзыв успешно удален"}
@@ -148,12 +133,10 @@ def delete_review(review_id: int, db: Session = Depends(get_db), user=Depends(ge
 
 @router.get("/user/", response_model=List[ReviewRead])
 def get_user_reviews(db: Session = Depends(get_db), user=Depends(get_current_active_user)):
-    """Получает все отзывы текущего пользователя"""
     reviews = db.query(Review).filter(
         Review.user_id == user.id
     ).order_by(Review.created_at.desc()).all()
     
-    # Добавляем имена пользователей
     for review in reviews:
         review.user_name = user.name
     
