@@ -2,9 +2,18 @@ import { create } from "zustand";
 
 export const useAuth = create((set, get) => ({
     user: null,
-    token: typeof window !== 'undefined' ? localStorage.getItem("token") : null,
+    token: null,
     
-    setUser: (user) => set({ user }),
+    setUser: (user) => {
+        if (typeof window !== 'undefined') {
+            if (user) {
+                localStorage.setItem("user", JSON.stringify(user));
+            } else {
+                localStorage.removeItem("user");
+            }
+        }
+        set({ user });
+    },
     
     setToken: (token) => {
         if (typeof window !== 'undefined') {
@@ -20,6 +29,7 @@ export const useAuth = create((set, get) => ({
     logout: () => {
         if (typeof window !== 'undefined') {
             localStorage.removeItem("token");
+            localStorage.removeItem("user");
         }
         set({ user: null, token: null });
     },
@@ -27,21 +37,18 @@ export const useAuth = create((set, get) => ({
     restoreUser: () => {
         if (typeof window !== 'undefined') {
             const token = localStorage.getItem("token");
-            if (token) {
+            const userStr = localStorage.getItem("user");
+            if (token && userStr) {
                 try {
-                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    const parsedUser = JSON.parse(userStr);
+                    if (parsedUser.role === "UserRole.admin") parsedUser.role = "admin";
                     set({ 
                         token,
-                        user: { 
-                            id: payload.sub, 
-                            email: payload.email || '', 
-                            name: payload.name || '', 
-                            role: payload.role || 'user' 
-                        }
+                        user: parsedUser
                     });
                 } catch (error) {
-                    console.error("Ошибка при восстановлении пользователя:", error);
                     localStorage.removeItem("token");
+                    localStorage.removeItem("user");
                     set({ user: null, token: null });
                 }
             }

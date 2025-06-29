@@ -34,13 +34,18 @@ export default function LoginPage() {
             });
             setToken(response.data.access_token);
             const decoded = JSON.parse(atob(response.data.access_token.split('.')[1]));
+            let role = decoded.role === "UserRole.admin" ? "admin" : decoded.role;
             setUser({ 
                 id: decoded.sub, 
                 email: formData.email, 
                 name: "", 
-                role: decoded.role 
+                role
             });
-            router.push("/");
+            if (role === "admin") {
+                router.push("/admin");
+            } else {
+                router.push("/");
+            }
         } catch (error) {
             setError("Неверный email или пароль");
         } finally {
