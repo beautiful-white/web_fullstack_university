@@ -5,9 +5,11 @@ from typing import List, Optional
 from datetime import date, time
 from app.schemas.restaurant import RestaurantCreate, RestaurantRead
 from app.schemas.booking import AvailableTablesResponse, AvailableTable, AvailableTimeSlotsResponse
+from app.schemas.review import ReviewRead
 from app.models.restaurant import Restaurant
 from app.models.table import Table
 from app.models.booking import Booking
+from app.models.review import Review
 from app.database import SessionLocal
 from app.auth import get_current_admin, get_current_active_user
 from app.utils.time_slots import get_available_time_slots
@@ -385,3 +387,21 @@ def get_restaurant_images(restaurant_id: int, db: Session = Depends(get_db)):
         images["available_files"] = [f"/static/restaurants/images/restaurant_{restaurant_id}/{file}" for file in files]
     
     return images
+
+
+@router.get("/{restaurant_id}/reviews", response_model=List[ReviewRead])
+def get_restaurant_reviews(restaurant_id: int, db: Session = Depends(get_db)):
+    """Получить отзывы для конкретного ресторана"""
+    restaurant = db.query(Restaurant).filter(Restaurant.id == restaurant_id).first()
+    if not restaurant:
+        raise HTTPException(status_code=404, detail="Restaurant not found")
+    
+    reviews = db.query(Review).filter(
+        Review.restaurant_id == restaurant_id
+    ).order_by(Review.created_at.desc()).all()
+    
+    for review in reviews:
+        if review.user:
+            review.user_name = review.user.name
+    
+    return reviews

@@ -32,16 +32,6 @@ def update_restaurant_rating(db: Session, restaurant_id: int):
 
 @router.post("/", response_model=ReviewRead)
 def create_review(review: ReviewCreate, db: Session = Depends(get_db), user=Depends(get_current_active_user)):
-    exists = db.query(Review).filter(
-        Review.user_id == user.id,
-        Review.restaurant_id == review.restaurant_id
-    ).first()
-    
-    if exists:
-        raise HTTPException(
-            status_code=400, detail="Вы уже оставляли отзыв для этого ресторана"
-        )
-    
     if review.rating < 1 or review.rating > 5:
         raise HTTPException(
             status_code=400, detail="Рейтинг должен быть от 1 до 5"

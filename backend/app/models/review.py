@@ -11,7 +11,7 @@ class Review(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     restaurant_id = Column(Integer, ForeignKey(
         "restaurants.id"), nullable=False)
-    rating = Column(Float, nullable=False)
+    rating = Column(Integer, nullable=False)
     comment = Column(Text)
     created_at = Column(DateTime, default=datetime.utcnow)
     # relationships
