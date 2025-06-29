@@ -8,7 +8,7 @@ from app.models.booking import Booking
 from app.models.table import Table
 from app.models.restaurant import Restaurant
 from app.database import SessionLocal
-from app.auth import get_current_active_user
+from app.auth import get_current_active_user, get_current_admin
 
 router = APIRouter(prefix="/bookings", tags=["bookings"])
 
@@ -149,3 +149,8 @@ def get_available_tables(restaurant_id: int, date: date, time: time, guests: int
             } for table in free_tables
         ]
     }
+
+
+@router.get("/all", response_model=List[BookingRead])
+def list_all_bookings(db: Session = Depends(get_db), admin=Depends(get_current_admin)):
+    return db.query(Booking).all()
