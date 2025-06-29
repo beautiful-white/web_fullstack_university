@@ -41,7 +41,6 @@ export const useAuth = create((set, get) => ({
             if (token && userStr) {
                 try {
                     const parsedUser = JSON.parse(userStr);
-                    if (parsedUser.role === "UserRole.admin") parsedUser.role = "admin";
                     set({ 
                         token,
                         user: parsedUser

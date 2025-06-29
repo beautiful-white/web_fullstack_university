@@ -72,6 +72,11 @@ def list_bookings(db: Session = Depends(get_db), user=Depends(get_current_active
     return db.query(Booking).filter(Booking.user_id == user.id).all()
 
 
+@router.get("/all", response_model=List[BookingRead])
+def list_all_bookings(db: Session = Depends(get_db), admin=Depends(get_current_admin)):
+    return db.query(Booking).all()
+
+
 @router.get("/{booking_id}", response_model=BookingRead)
 def get_booking(booking_id: int, db: Session = Depends(get_db), user=Depends(get_current_active_user)):
     booking = db.query(Booking).filter(
@@ -149,8 +154,3 @@ def get_available_tables(restaurant_id: int, date: date, time: time, guests: int
             } for table in free_tables
         ]
     }
-
-
-@router.get("/all", response_model=List[BookingRead])
-def list_all_bookings(db: Session = Depends(get_db), admin=Depends(get_current_admin)):
-    return db.query(Booking).all()

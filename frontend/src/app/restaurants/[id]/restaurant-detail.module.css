@@ -17,8 +17,8 @@
 
 .header {
   position: fixed;
-  top: 20px;
-  left: 20px;
+  top: 60px;
+  left: 10px;
   z-index: 1000;
 }
 
@@ -26,12 +26,18 @@
   background: rgba(0, 0, 0, 0.7);
   color: white;
   border: none;
-  padding: 12px 20px;
-  border-radius: 25px;
+  padding: 6px 10px;
+  border-radius: 50%;
   cursor: pointer;
   font-size: 16px;
   transition: all 0.3s;
   backdrop-filter: blur(10px);
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
 .backButton:hover {
@@ -421,12 +427,14 @@
   }
   
   .header {
-    top: 10px;
+    top: 60px;
     left: 10px;
   }
   
   .backButton {
-    padding: 10px 15px;
-    font-size: 14px;
+    padding: 6px 10px;
+    font-size: 16px;
+    width: 35px;
+    height: 35px;
   }
 } 

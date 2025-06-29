@@ -536,3 +536,54 @@ a.secondary {
     font-size: 1.1rem;
   }
 }
+
+/* About Section */
+.about {
+    padding: 80px 0;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.aboutContent {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 0 20px;
+}
+
+.aboutContent h2 {
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 30px;
+    font-weight: 700;
+}
+
+.aboutContent p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #666;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.aboutContent p:last-child {
+    margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+  .cta p {
+    font-size: 1.1rem;
+  }
+  
+  .about {
+    padding: 60px 20px;
+  }
+  
+  .aboutContent h2 {
+    font-size: 2rem;
+  }
+  
+  .aboutContent p {
+    font-size: 1rem;
+    text-align: center;
+  }
+}

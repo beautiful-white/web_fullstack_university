@@ -189,7 +189,7 @@ export default function RestaurantDetailPage() {
             <div className={styles.container}>
                 <div className={styles.header}>
                     <button className={styles.backButton} onClick={() => router.back()}>
-                        ← Назад
+                        ←
                     </button>
                 </div>
 
