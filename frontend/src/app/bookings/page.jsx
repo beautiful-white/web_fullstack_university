@@ -14,15 +14,12 @@ export default function BookingsPage() {
     const router = useRouter();
 
     useEffect(() => {
-        // Проверяем, есть ли токен в localStorage
         const token = localStorage.getItem("token");
         const userStr = localStorage.getItem("user");
         
         if (token && userStr) {
-            // Если есть токен и пользователь, ждем восстановления состояния
             setAuthLoading(false);
         } else {
-            // Если нет токена, сразу перенаправляем
             setAuthLoading(false);
             if (!user) {
                 router.push("/login");
