@@ -102,12 +102,10 @@ export default function RestaurantDetailPage() {
     const handleBooking = async (e) => {
         e.preventDefault();
         if (!user) {
-            alert("Пожалуйста, войдите в систему для бронирования");
             router.push("/login");
             return;
         }
         if (!bookingData.table_id) {
-            alert("Пожалуйста, выберите столик");
             return;
         }
         try {
@@ -120,12 +118,7 @@ export default function RestaurantDetailPage() {
             router.push("/bookings");
         } catch (error) {
             if (error.response?.status === 401) {
-                alert("Пожалуйста, войдите в систему");
                 router.push("/login");
-            } else if (error.response?.data?.detail) {
-                alert(error.response.data.detail);
-            } else {
-                alert("Ошибка при создании бронирования");
             }
         }
     };

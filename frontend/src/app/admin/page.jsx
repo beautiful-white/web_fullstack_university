@@ -64,16 +64,14 @@ export default function AdminPage() {
                 description: ""
             });
             fetchData();
-            alert("Ресторан успешно создан!");
         } catch (error) {
-            alert("Ошибка при создании ресторана");
+            // Ошибка обрабатывается автоматически
         }
     };
 
     const handleCreateTable = async (e) => {
         e.preventDefault();
         if (!newTable.restaurant_id) {
-            alert("Пожалуйста, выберите ресторан");
             return;
         }
         try {
@@ -84,9 +82,8 @@ export default function AdminPage() {
                 is_available: true
             });
             fetchData();
-            alert("Столик успешно добавлен!");
         } catch (error) {
-            alert("Ошибка при добавлении столика");
+            // Ошибка обрабатывается автоматически
         }
     };
 
@@ -94,9 +91,8 @@ export default function AdminPage() {
         try {
             await api.put(`/bookings/${bookingId}`, { status });
             fetchData();
-            alert("Статус бронирования обновлен!");
         } catch (error) {
-            alert("Ошибка при обновлении статуса");
+            // Ошибка обрабатывается автоматически
         }
     };
 
@@ -104,9 +100,8 @@ export default function AdminPage() {
         try {
             await api.put(`/tables/${tableId}/availability`);
             fetchData();
-            alert("Доступность столика изменена!");
         } catch (error) {
-            alert("Ошибка при изменении доступности столика");
+            // Ошибка обрабатывается автоматически
         }
     };
 
@@ -117,9 +112,8 @@ export default function AdminPage() {
         try {
             await api.delete(`/tables/${tableId}`);
             fetchData();
-            alert("Столик удален!");
         } catch (error) {
-            alert("Ошибка при удалении столика");
+            // Ошибка обрабатывается автоматически
         }
     };
 

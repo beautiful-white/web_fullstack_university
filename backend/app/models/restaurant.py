@@ -21,6 +21,7 @@ class Restaurant(Base):
     opening_time = Column(Time, nullable=False, default="10:00")  # Время открытия
     closing_time = Column(Time, nullable=False, default="22:00")  # Время закрытия
     slot_duration = Column(Integer, default=90)  # Длительность слота в минутах (90 = 1.5 часа)
+    phone = Column(String, nullable=True)  # Номер телефона ресторана
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     # relationships
     owner = relationship("User", back_populates="restaurants")
