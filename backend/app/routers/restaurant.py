@@ -207,8 +207,15 @@ def update_restaurant(restaurant_id: int, data: RestaurantCreate, db: Session = 
     if not restaurant:
         raise HTTPException(status_code=404, detail="Restaurant not found")
     
-    for key, value in data.dict().items():
-        setattr(restaurant, key, value)
+
+    update_data = data.dict()
+    for key, value in update_data.items():
+        if key == "gallery" and value is None:
+            setattr(restaurant, key, [])
+        elif key == "menu_images" and value is None:
+            setattr(restaurant, key, [])
+        else:
+            setattr(restaurant, key, value)
     
     db.commit()
     db.refresh(restaurant)

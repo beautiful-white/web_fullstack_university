@@ -30,9 +30,9 @@ export default function AdminPage() {
         gallery: [],
         menu_images: []
     });
+    const [mainImageUploading, setMainImageUploading] = useState(false);
 
     useEffect(() => {
-        // Проверяем, есть ли токен в localStorage
         const token = localStorage.getItem("token");
         const userStr = localStorage.getItem("user");
         if (token && userStr) {
@@ -58,7 +58,7 @@ export default function AdminPage() {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const bookingsUrl = user.role === "admin" ? "/bookings/" : `/bookings/?user_id=${user.id}`;
+            const bookingsUrl = user.role === "admin" ? "/bookings/all" : `/bookings/?user_id=${user.id}`;
             const [restaurantsRes, bookingsRes] = await Promise.all([
                 api.get("/restaurants/"),
                 api.get(bookingsUrl)
@@ -79,9 +79,9 @@ export default function AdminPage() {
                 latitude: newRestaurant.latitude ? parseFloat(newRestaurant.latitude) : null,
                 longitude: newRestaurant.longitude ? parseFloat(newRestaurant.longitude) : null,
                 gallery: newRestaurant.gallery.filter(url => url.trim()),
-                menu_images: newRestaurant.menu_images.filter(url => url.trim())
+                menu_images: newRestaurant.menu_images.filter(url => url.trim()),
+                image_url: newRestaurant.image_url || null
             };
-            
             await api.post("/restaurants/", restaurantData);
             setNewRestaurant({
                 name: "",
@@ -100,26 +100,27 @@ export default function AdminPage() {
             });
             fetchData();
         } catch (error) {
+            console.error("Ошибка при создании ресторана:", error);
         }
     };
 
     const handleUpdateRestaurant = async (e) => {
         e.preventDefault();
         if (!editingRestaurant) return;
-        
         try {
             const restaurantData = {
                 ...editingRestaurant,
                 latitude: editingRestaurant.latitude ? parseFloat(editingRestaurant.latitude) : null,
                 longitude: editingRestaurant.longitude ? parseFloat(editingRestaurant.longitude) : null,
                 gallery: editingRestaurant.gallery.filter(url => url.trim()),
-                menu_images: editingRestaurant.menu_images.filter(url => url.trim())
+                menu_images: editingRestaurant.menu_images.filter(url => url.trim()),
+                image_url: editingRestaurant.image_url || null
             };
-            
             await api.put(`/restaurants/${editingRestaurant.id}`, restaurantData);
             setEditingRestaurant(null);
             fetchData();
         } catch (error) {
+            console.error("Ошибка при обновлении ресторана:", error);
         }
     };
 
@@ -293,7 +294,7 @@ export default function AdminPage() {
                                             required
                                             className={styles.select}
                                         >
-                                            <option value="">Выберите ценовой диапазон</option>
+                                            <option value="">Выберите средний чек</option>
                                             <option value="$">$ (Недорого)</option>
                                             <option value="$$">$$ (Средне)</option>
                                             <option value="$$$">$$$ (Дорого)</option>
@@ -366,7 +367,7 @@ export default function AdminPage() {
                                         <h4>Главное изображение</h4>
                                         <div className={styles.imageInput}>
                                             <input
-                                                type="url"
+                                                type="text"
                                                 placeholder="URL главного изображения"
                                                 value={editingRestaurant ? editingRestaurant.image_url || "" : newRestaurant.image_url}
                                                 onChange={(e) => editingRestaurant 
@@ -382,6 +383,7 @@ export default function AdminPage() {
                                                     onChange={async (e) => {
                                                         const file = e.target.files[0];
                                                         if (file) {
+                                                            setMainImageUploading(true);
                                                             const formData = new FormData();
                                                             formData.append('file', file);
                                                             try {
@@ -393,6 +395,9 @@ export default function AdminPage() {
                                                                     image_url: response.data.image_url
                                                                 });
                                                             } catch (error) {
+                                                                console.error("Ошибка при загрузке главного изображения:", error);
+                                                            } finally {
+                                                                setMainImageUploading(false);
                                                             }
                                                         }
                                                     }}
@@ -407,6 +412,9 @@ export default function AdminPage() {
                                             }
                                         </p>
                                     </div>
+                                    {mainImageUploading && (
+                                        <div style={{ color: '#888', marginTop: 8 }}>Загрузка изображения...</div>
+                                    )}
 
                                     {/* Галерея изображений */}
                                     <div className={styles.imageSection}>
@@ -447,6 +455,7 @@ export default function AdminPage() {
                                                                     gallery: [...(editingRestaurant.gallery || []), response.data.image_url]
                                                                 });
                                                             } catch (error) {
+                                                                console.error("Ошибка при загрузке изображения галереи:", error);
                                                             }
                                                         }
                                                     }}
@@ -515,6 +524,7 @@ export default function AdminPage() {
                                                                     menu_images: [...(editingRestaurant.menu_images || []), response.data.image_url]
                                                                 });
                                                             } catch (error) {
+                                                                console.error("Ошибка при загрузке изображения меню:", error);
                                                             }
                                                         }
                                                     }}
@@ -545,7 +555,7 @@ export default function AdminPage() {
                                     </div>
 
                                     <div className={styles.formActions}>
-                                        <button type="submit" className={styles.submitButton}>
+                                        <button type="submit" className={styles.submitButton} disabled={mainImageUploading}>
                                             {editingRestaurant ? "Обновить ресторан" : "Создать ресторан"}
                                         </button>
                                         {editingRestaurant && (
@@ -571,7 +581,7 @@ export default function AdminPage() {
                                             <p><strong>Адрес:</strong> {restaurant.location}</p>
                                             <p><strong>Координаты:</strong> {restaurant.latitude}, {restaurant.longitude}</p>
                                             <p><strong>Кухня:</strong> {restaurant.cuisine}</p>
-                                            <p><strong>Цена:</strong> {restaurant.price_range}</p>
+                                            <p><strong>Средний чек:</strong> {restaurant.price_range}</p>
                                             <p><strong>Рейтинг:</strong> {restaurant.rating}</p>
                                             <p><strong>Время работы:</strong> {restaurant.opening_time} - {restaurant.closing_time}</p>
                                             <p><strong>Телефон:</strong> {restaurant.phone || "Не указан"}</p>
@@ -583,7 +593,10 @@ export default function AdminPage() {
                                         <div className={styles.restaurantActions}>
                                             <button 
                                                 className={styles.editButton}
-                                                onClick={() => setEditingRestaurant(restaurant)}
+                                                onClick={() => {
+                                                    setEditingRestaurant(restaurant);
+                                                    window.scrollTo({ top: 0, behavior: "smooth" });
+                                                }}
                                             >
                                                 Редактировать
                                             </button>
@@ -611,8 +624,8 @@ export default function AdminPage() {
                                             <p><strong>Ресторан:</strong> {booking.restaurant_name || `Ресторан #${booking.table_id}`}</p>
                                             <p><strong>Дата:</strong> {formatDate(booking.date)}</p>
                                             <p><strong>Время:</strong> {formatTime(booking.time)}</p>
-                                            <p><strong>Гостей:</strong> {booking.guests_count}</p>
-                                            <p><strong>Столик:</strong> #{booking.table_id}</p>
+                                            <p><strong>Гостей:</strong> {booking.guests}</p>
+                                            <p><strong>Столик:</strong> #{booking.table_id}{booking.table_seats ? ` (${booking.table_seats} мест)` : ""}</p>
                                             <p><strong>Статус:</strong> 
                                                 <span className={`${styles.status} ${getStatusClass(booking.status)}`}>
                                                     {getStatusText(booking.status)}

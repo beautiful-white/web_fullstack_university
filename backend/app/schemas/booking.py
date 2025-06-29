@@ -20,6 +20,7 @@ class BookingRead(BookingBase):
     status: str
     restaurant_name: Optional[str] = None
     table_seats: Optional[int] = None
+    user_email: Optional[str] = None
 
     class Config:
         orm_mode = True

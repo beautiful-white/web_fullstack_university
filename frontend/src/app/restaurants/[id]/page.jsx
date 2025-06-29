@@ -212,7 +212,7 @@ export default function RestaurantDetailPage() {
                                 <span className={styles.value}>{restaurant.cuisine}</span>
                             </div>
                             <div className={styles.detail}>
-                                <span className={styles.label}>Ценовой диапазон:</span>
+                                <span className={styles.label}>Средний чек:</span>
                                 <span className={styles.value}>{restaurant.price_range}</span>
                             </div>
                             <div className={styles.detail}>

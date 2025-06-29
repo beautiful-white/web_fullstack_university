@@ -76,6 +76,8 @@ def list_bookings(db: Session = Depends(get_db), user=Depends(get_current_active
         if booking.table and booking.table.restaurant:
             booking.restaurant_name = booking.table.restaurant.name
             booking.table_seats = booking.table.seats
+        if booking.user:
+            booking.user_email = booking.user.email
     
     return bookings
 
@@ -88,6 +90,8 @@ def list_all_bookings(db: Session = Depends(get_db), admin=Depends(get_current_a
         if booking.table and booking.table.restaurant:
             booking.restaurant_name = booking.table.restaurant.name
             booking.table_seats = booking.table.seats
+        if booking.user:
+            booking.user_email = booking.user.email
     
     return bookings
 

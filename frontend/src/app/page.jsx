@@ -48,7 +48,6 @@ export default function HomePage() {
                     </div>
                 </div>
             </div>
-            {/* Features Section на всю ширину */}
             <div className={styles.featuresSection}>
                 <div className={styles.featuresContentWrap}>
                     <h2 className={styles.featuresTitle}>Что мы предлагаем</h2>
@@ -68,15 +67,9 @@ export default function HomePage() {
                             <h3>Честные отзывы</h3>
                             <p>Реальные отзывы посетителей помогут сделать правильный выбор ресторана</p>
                         </div>
-                        <div className={styles.feature}>
-                            <div className={styles.featureIcon}>🎯</div>
-                            <h3>Персональные рекомендации</h3>
-                            <p>Получайте предложения на основе ваших предпочтений и истории посещений</p>
-                        </div>
                     </div>
                 </div>
             </div>
-            {/* CTA Section на всю ширину */}
             {!user && (
                 <div className={styles.ctaSection}>
                     <div className={styles.ctaContentWrap}>
@@ -91,7 +84,6 @@ export default function HomePage() {
                     </div>
                 </div>
             )}
-            {/* About Section на всю ширину */}
             <div className={styles.about}>
                 <div className={styles.aboutContent}>
                     <h2>О нашем сервисе</h2>
@@ -107,7 +99,6 @@ export default function HomePage() {
                     </p>
                 </div>
             </div>
-            {/* Footer на всю ширину */}
             <Footer />
         </>
     );
