@@ -96,6 +96,9 @@ def list_restaurants(
         elif sort_by == "name":
             reverse = sort_order == "desc"
             restaurants.sort(key=lambda r: r.name.lower(), reverse=reverse)
+        else:
+            # По умолчанию сортируем по id
+            restaurants.sort(key=lambda r: r.id)
     
     return restaurants
 

@@ -132,11 +132,17 @@ export default function RestaurantsPage() {
         fetchRestaurants();
     };
 
-    let filteredRestaurants = restaurants.filter(restaurant =>
-        restaurant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        restaurant.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        restaurant.cuisine.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    let filteredRestaurants = restaurants
+        .filter(restaurant =>
+            restaurant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            restaurant.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            restaurant.cuisine.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+        .filter(restaurant =>
+            (!cuisineFilter || restaurant.cuisine === cuisineFilter) &&
+            (!priceFilter || restaurant.price_range === priceFilter) &&
+            (!minRating || (restaurant.rating && restaurant.rating >= parseFloat(minRating)))
+        );
 
     if (useLocation && userCoords) {
         filteredRestaurants = filteredRestaurants
@@ -150,17 +156,8 @@ export default function RestaurantsPage() {
             .filter(r => r.distance !== null)
             .sort((a, b) => a.distance - b.distance);
     } else {
-        const vladivostokCoords = { latitude: 43.1198, longitude: 131.8869 };
-        filteredRestaurants = filteredRestaurants
-            .map(r => {
-                if (r.latitude && r.longitude) {
-                    const distance = haversine(vladivostokCoords.latitude, vladivostokCoords.longitude, r.latitude, r.longitude);
-                    return { ...r, distance };
-                }
-                return { ...r, distance: null };
-            })
-            .filter(r => r.distance !== null)
-            .sort((a, b) => a.distance - b.distance);
+        // По умолчанию сортируем по id
+        filteredRestaurants = filteredRestaurants.sort((a, b) => a.id - b.id);
     }
 
     const cuisines = [...new Set(restaurants.map(r => r.cuisine))];
