@@ -25,6 +25,8 @@ export default function RestaurantDetailPage() {
         table_id: null
     });
 
+    const STATIC_BASE = "http://localhost:8000";
+
     useEffect(() => {
         fetchRestaurant();
     }, [params.id]);
@@ -191,7 +193,7 @@ export default function RestaurantDetailPage() {
                 <div className={styles.heroSection}>
                     <div className={styles.heroImage}>
                         <img 
-                            src={restaurant.image_url || "https://via.placeholder.com/1200x400?text=Ресторан"} 
+                            src={restaurant.image_url ? `${STATIC_BASE}${restaurant.image_url}` : `${STATIC_BASE}/static/restaurants/images/default-restaurant.jpg`}
                             alt={restaurant.name}
                             className={styles.mainImage}
                         />
@@ -254,7 +256,7 @@ export default function RestaurantDetailPage() {
                             <div className={styles.gallery}>
                                 <div className={styles.mainGalleryImage}>
                                     <img 
-                                        src={galleryImages[activeImageIndex]} 
+                                        src={`${STATIC_BASE}${galleryImages[activeImageIndex]}`}
                                         alt={`${restaurant.name} - фото ${activeImageIndex + 1}`}
                                         className={styles.galleryMainImage}
                                     />
@@ -264,7 +266,7 @@ export default function RestaurantDetailPage() {
                                         {galleryImages.map((image, index) => (
                                             <img 
                                                 key={index}
-                                                src={image} 
+                                                src={`${STATIC_BASE}${image}`}
                                                 alt={`Фото ${index + 1}`}
                                                 className={`${styles.galleryThumbnail} ${activeImageIndex === index ? styles.activeThumbnail : ''}`}
                                                 onClick={() => setActiveImageIndex(index)}
@@ -283,7 +285,7 @@ export default function RestaurantDetailPage() {
                             <div className={styles.menuGallery}>
                                 <div className={styles.mainMenuImage}>
                                     <img 
-                                        src={menuImages[activeMenuIndex]} 
+                                        src={`${STATIC_BASE}${menuImages[activeMenuIndex]}`}
                                         alt={`Меню ${activeMenuIndex + 1}`}
                                         className={styles.menuMainImage}
                                     />
@@ -293,7 +295,7 @@ export default function RestaurantDetailPage() {
                                         {menuImages.map((image, index) => (
                                             <img 
                                                 key={index}
-                                                src={image} 
+                                                src={`${STATIC_BASE}${image}`}
                                                 alt={`Меню ${index + 1}`}
                                                 className={`${styles.menuThumbnail} ${activeMenuIndex === index ? styles.activeThumbnail : ''}`}
                                                 onClick={() => setActiveMenuIndex(index)}

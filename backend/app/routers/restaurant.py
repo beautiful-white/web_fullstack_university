@@ -17,8 +17,7 @@ from math import radians, cos, sin, asin, sqrt
 
 router = APIRouter(prefix="/restaurants", tags=["restaurants"])
 
-UPLOAD_DIR = os.path.join(os.path.dirname(
-    __file__), '../../static/restaurants')
+UPLOAD_DIR = os.path.join(os.path.dirname(__file__), '../../static/restaurants/images')
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
@@ -239,3 +238,150 @@ def upload_restaurant_photo(restaurant_id: int, file: UploadFile = File(...), db
     db.commit()
     
     return {"message": "Photo uploaded successfully", "image_url": restaurant.image_url}
+
+
+@router.post("/{restaurant_id}/upload_main_image")
+def upload_main_image(restaurant_id: int, file: UploadFile = File(...), db: Session = Depends(get_db), admin=Depends(get_current_admin)):
+    """Загрузить главное изображение ресторана"""
+    restaurant = db.query(Restaurant).filter(Restaurant.id == restaurant_id).first()
+    if not restaurant:
+        raise HTTPException(status_code=404, detail="Restaurant not found")
+    
+    # Создаем папку для ресторана если её нет
+    restaurant_dir = os.path.join(UPLOAD_DIR, f"restaurant_{restaurant_id}")
+    os.makedirs(restaurant_dir, exist_ok=True)
+    
+    # Сохраняем файл как main.jpg
+    file_path = os.path.join(restaurant_dir, "main.jpg")
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    
+    # Обновляем URL в базе данных
+    restaurant.image_url = f"/static/restaurants/images/restaurant_{restaurant_id}/main.jpg"
+    db.commit()
+    
+    return {"message": "Main image uploaded successfully", "image_url": restaurant.image_url}
+
+
+@router.post("/{restaurant_id}/upload_gallery_image")
+def upload_gallery_image(restaurant_id: int, file: UploadFile = File(...), db: Session = Depends(get_db), admin=Depends(get_current_admin)):
+    """Загрузить изображение в галерею ресторана"""
+    restaurant = db.query(Restaurant).filter(Restaurant.id == restaurant_id).first()
+    if not restaurant:
+        raise HTTPException(status_code=404, detail="Restaurant not found")
+
+    restaurant_dir = os.path.join(UPLOAD_DIR, f"restaurant_{restaurant_id}")
+    os.makedirs(restaurant_dir, exist_ok=True)
+
+    # Находим максимальный номер для галереи
+    gallery_files = [f for f in os.listdir(restaurant_dir) if f.startswith("gallery_") and f.endswith(".jpg")]
+    max_number = 0
+    for fname in gallery_files:
+        try:
+            num = int(fname.split("_")[1].split(".")[0])
+            if num > max_number:
+                max_number = num
+        except Exception:
+            continue
+    next_number = max_number + 1
+
+    # Сохраняем файл
+    file_path = os.path.join(restaurant_dir, f"gallery_{next_number}.jpg")
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    # Обновляем галерею в базе данных
+    current_gallery = restaurant.gallery or []
+    new_image_url = f"/static/restaurants/images/restaurant_{restaurant_id}/gallery_{next_number}.jpg"
+    current_gallery.append(new_image_url)
+    restaurant.gallery = current_gallery
+    db.commit()
+
+    return {"message": "Gallery image uploaded successfully", "image_url": new_image_url}
+
+
+@router.post("/{restaurant_id}/upload_menu_image")
+def upload_menu_image(restaurant_id: int, file: UploadFile = File(...), db: Session = Depends(get_db), admin=Depends(get_current_admin)):
+    """Загрузить изображение меню ресторана"""
+    restaurant = db.query(Restaurant).filter(Restaurant.id == restaurant_id).first()
+    if not restaurant:
+        raise HTTPException(status_code=404, detail="Restaurant not found")
+
+
+    restaurant_dir = os.path.join(UPLOAD_DIR, f"restaurant_{restaurant_id}")
+    os.makedirs(restaurant_dir, exist_ok=True)
+
+    menu_files = [f for f in os.listdir(restaurant_dir) if f.startswith("menu_") and f.endswith(".jpg")]
+    max_number = 0
+    for fname in menu_files:
+        try:
+            num = int(fname.split("_")[1].split(".")[0])
+            if num > max_number:
+                max_number = num
+        except Exception:
+            continue
+    next_number = max_number + 1
+
+    file_path = os.path.join(restaurant_dir, f"menu_{next_number}.jpg")
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    current_menu = restaurant.menu_images or []
+    new_image_url = f"/static/restaurants/images/restaurant_{restaurant_id}/menu_{next_number}.jpg"
+    current_menu.append(new_image_url)
+    restaurant.menu_images = current_menu
+    db.commit()
+
+    return {"message": "Menu image uploaded successfully", "image_url": new_image_url}
+
+
+@router.delete("/{restaurant_id}/delete_image")
+def delete_image(restaurant_id: int, image_url: str, db: Session = Depends(get_db), admin=Depends(get_current_admin)):
+    """Удалить изображение ресторана"""
+    restaurant = db.query(Restaurant).filter(Restaurant.id == restaurant_id).first()
+    if not restaurant:
+        raise HTTPException(status_code=404, detail="Restaurant not found")
+    
+    # Извлекаем имя файла из URL
+    file_name = image_url.split('/')[-1]
+    file_path = os.path.join(UPLOAD_DIR, f"restaurant_{restaurant_id}", file_name)
+    
+    # Удаляем файл если он существует
+    if os.path.exists(file_path):
+        os.remove(file_path)
+    
+    # Обновляем базу данных
+    if image_url == restaurant.image_url:
+        restaurant.image_url = None
+    elif restaurant.gallery and image_url in restaurant.gallery:
+        restaurant.gallery.remove(image_url)
+    elif restaurant.menu_images and image_url in restaurant.menu_images:
+        restaurant.menu_images.remove(image_url)
+    
+    db.commit()
+    
+    return {"message": "Image deleted successfully"}
+
+
+@router.get("/{restaurant_id}/images")
+def get_restaurant_images(restaurant_id: int, db: Session = Depends(get_db)):
+    """Получить список всех изображений ресторана"""
+    restaurant = db.query(Restaurant).filter(Restaurant.id == restaurant_id).first()
+    if not restaurant:
+        raise HTTPException(status_code=404, detail="Restaurant not found")
+    
+    restaurant_dir = os.path.join(UPLOAD_DIR, f"restaurant_{restaurant_id}")
+    
+    images = {
+        "main_image": restaurant.image_url,
+        "gallery": restaurant.gallery or [],
+        "menu_images": restaurant.menu_images or [],
+        "available_files": []
+    }
+    
+    # Получаем список файлов в папке ресторана
+    if os.path.exists(restaurant_dir):
+        files = os.listdir(restaurant_dir)
+        images["available_files"] = [f"/static/restaurants/images/restaurant_{restaurant_id}/{file}" for file in files]
+    
+    return images

@@ -15,7 +15,7 @@ app.add_middleware(
     expose_headers=["*"],
 )
 
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.include_router(user.router)
 app.include_router(restaurant.router)

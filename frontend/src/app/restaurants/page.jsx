@@ -5,6 +5,8 @@ import api from "../../shared/api";
 import styles from "./restaurants.module.css";
 import Footer from "../components/Footer";
 
+const STATIC_BASE = "http://localhost:8000";
+
 function haversine(lat1, lon1, lat2, lon2) {
     const R = 6371;
     const toRad = (x) => (x * Math.PI) / 180;
@@ -316,7 +318,7 @@ export default function RestaurantsPage() {
                             >
                                 <div className={styles.imageContainer}>
                                     <img
-                                        src={restaurant.image_url || "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80"}
+                                        src={restaurant.image_url ? `${STATIC_BASE}${restaurant.image_url}` : "/default-restaurant.jpg"}
                                         alt={restaurant.name}
                                         className={styles.restaurantImage}
                                     />
