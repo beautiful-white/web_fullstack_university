@@ -8,8 +8,9 @@
 }
 
 .container {
-  width: 100%;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   padding: 0 5vw 40px 5vw;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   box-sizing: border-box;

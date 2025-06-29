@@ -17,6 +17,7 @@ class RestaurantBase(BaseModel):
     opening_time: time = time(10, 0)  # 10:00 по умолчанию
     closing_time: time = time(22, 0)  # 22:00 по умолчанию
     slot_duration: int = 90  # 90 минут = 1.5 часа
+    phone: Optional[str] = None
 
 
 class RestaurantCreate(RestaurantBase):

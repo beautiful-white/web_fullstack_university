@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "../../shared/store";
 import api from "../../shared/api";
 import styles from "./bookings.module.css";
+import Footer from "../components/Footer";
 
 export default function BookingsPage() {
     const [bookings, setBookings] = useState([]);
@@ -169,6 +170,7 @@ export default function BookingsPage() {
                     </div>
                 )}
             </div>
+            <Footer />
         </>
     );
 } 

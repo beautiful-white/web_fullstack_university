@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "../../shared/api";
 import styles from "./restaurants.module.css";
+import Footer from "../components/Footer";
 
 function haversine(lat1, lon1, lat2, lon2) {
     const R = 6371;
@@ -371,6 +372,7 @@ export default function RestaurantsPage() {
                     </div>
                 )}
             </div>
+            <Footer />
         </>
     );
 } 

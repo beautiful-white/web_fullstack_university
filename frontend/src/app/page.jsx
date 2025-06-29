@@ -2,6 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useAuth } from "../shared/store";
 import styles from "./page.module.css";
+import Footer from "./components/Footer";
 
 export default function HomePage() {
     const router = useRouter();
@@ -47,7 +48,7 @@ export default function HomePage() {
                     <div className={styles.feature}>
                         <div className={styles.featureIcon}>🔍</div>
                         <h3>Широкий выбор</h3>
-                        <p>Более 50 ресторанов с различными кухнями мира - от традиционной русской до экзотической азиатской</p>
+                        <p>Множество ресторанов с различными кухнями мира - от традиционной русской до экзотической азиатской</p>
                     </div>
                     <div className={styles.feature}>
                         <div className={styles.featureIcon}>📅</div>
@@ -98,31 +99,7 @@ export default function HomePage() {
             )}
 
             {/* Footer */}
-            <div className={styles.footer}>
-                <div className={styles.footerContent}>
-                    <div className={styles.footerSection}>
-                        <h3>О нас</h3>
-                        <p>Мы помогаем жителям и гостям Владивостока находить лучшие рестораны города и наслаждаться изысканной кухней</p>
-                    </div>
-                    <div className={styles.footerSection}>
-                        <h3>Навигация</h3>
-                        <ul>
-                            <li><button onClick={() => router.push("/restaurants")}>Рестораны</button></li>
-                            {user && <li><button onClick={() => router.push("/bookings")}>Мои брони</button></li>}
-                            {!user && <li><button onClick={() => router.push("/login")}>Войти</button></li>}
-                        </ul>
-                    </div>
-                    <div className={styles.footerSection}>
-                        <h3>Контакты</h3>
-                        <p>📧 info@vladivostok-restaurants.ru</p>
-                        <p>📞 +7 (423) 123-45-67</p>
-                        <p>📍 Владивосток, Приморский край</p>
-                    </div>
-                </div>
-                <div className={styles.footerBottom}>
-                    <p>&copy; 2024 Рестораны Владивостока. Все права защищены.</p>
-                </div>
-            </div>
+            <Footer />
         </div>
     );
 }

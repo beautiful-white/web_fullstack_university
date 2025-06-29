@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "../../../shared/store";
 import styles from "./restaurant-detail.module.css";
 import ReviewsSection from "./components/ReviewsSection";
+import Footer from "../../components/Footer";
 
 export default function RestaurantDetailPage() {
     const params = useParams();
@@ -224,6 +225,25 @@ export default function RestaurantDetailPage() {
                                 <span className={styles.label}>Адрес:</span>
                                 <span className={styles.value}>{restaurant.location}</span>
                             </div>
+                            <div className={styles.detail}>
+                                <span className={styles.label}>Время работы:</span>
+                                <span className={styles.value}>
+                                    {restaurant.opening_time && restaurant.closing_time 
+                                        ? `${restaurant.opening_time.substring(0, 5)} - ${restaurant.closing_time.substring(0, 5)}`
+                                        : '10:00 - 22:00'
+                                    }
+                                </span>
+                            </div>
+                            {restaurant.phone && (
+                                <div className={styles.detail}>
+                                    <span className={styles.label}>Телефон:</span>
+                                    <span className={styles.value}>
+                                        <a href={`tel:${restaurant.phone}`} className={styles.phoneLink}>
+                                            {restaurant.phone}
+                                        </a>
+                                    </span>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -373,6 +393,7 @@ export default function RestaurantDetailPage() {
                 {/* Секция отзывов */}
                 <ReviewsSection restaurantId={restaurant.id} />
             </div>
+            <Footer />
         </>
     );
 } 

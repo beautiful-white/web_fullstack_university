@@ -10,6 +10,8 @@
 .container {
   width: 100%;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   padding: 0 5vw 40px 5vw;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   box-sizing: border-box;
@@ -141,6 +143,17 @@
 .value {
   color: #666;
   font-size: 1.1rem;
+}
+
+.phoneLink {
+  color: #007bff;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.phoneLink:hover {
+  color: #0056b3;
+  text-decoration: underline;
 }
 
 /* Gallery Section */

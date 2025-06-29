@@ -5,6 +5,8 @@
   align-items: center;
   justify-content: center;
   padding: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-sizing: border-box;
 }
 
 .registerCard {

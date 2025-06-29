@@ -45,7 +45,7 @@ export const useAuth = create((set, get) => ({
                         token,
                         user: parsedUser
                     });
-                } catch (error) {
+                } catch {
                     localStorage.removeItem("token");
                     localStorage.removeItem("user");
                     set({ user: null, token: null });

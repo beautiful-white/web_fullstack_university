@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import api from "../../shared/api";
 import styles from "./admin.module.css";
+import Footer from "../components/Footer";
 
 export default function AdminPage() {
     const { user } = useAuth();
@@ -391,6 +392,7 @@ export default function AdminPage() {
                     )}
                 </div>
             </div>
+            <Footer />
         </>
     );
 } 
