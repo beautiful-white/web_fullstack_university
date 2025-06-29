@@ -1,7 +1,7 @@
 from datetime import time, timedelta, datetime
 from typing import List
 from app.models.restaurant import Restaurant
-from app.models.booking import Booking, BookingStatus
+from app.models.booking import Booking
 from app.models.table import Table
 from app.schemas.booking import TimeSlot
 
@@ -49,12 +49,12 @@ def check_slot_availability(restaurant: Restaurant, date: datetime.date,
     Проверяет доступность временного слота для бронирования.
     Возвращает True, если слот доступен.
     """
-    # Проверяем, есть ли активные брони на это время
-    active_bookings = db.query(Booking).filter(
-        Booking.restaurant_id == restaurant.id,
+    # Проверяем, есть ли активные брони на это время для столиков этого ресторана
+    active_bookings = db.query(Booking).join(Table).filter(
+        Table.restaurant_id == restaurant.id,
         Booking.date == date,
         Booking.time == start_time,
-        Booking.status == BookingStatus.active
+        Booking.status == "active"
     ).count()
     
     # Если есть активные брони, слот недоступен
@@ -81,12 +81,11 @@ def get_available_time_slots(restaurant: Restaurant, date: datetime.date,
         
         if suitable_tables > 0:
             # Проверяем, не забронированы ли все подходящие столики на это время
-            # Получаем restaurant_id через связь с таблицей
             booked_tables = db.query(Booking).join(Table).filter(
                 Table.restaurant_id == restaurant.id,
                 Booking.date == date,
                 Booking.time == slot.start_time,
-                Booking.status == BookingStatus.active,
+                Booking.status == "active",
                 Table.seats >= guests
             ).count()
             

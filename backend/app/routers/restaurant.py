@@ -7,7 +7,7 @@ from app.schemas.restaurant import RestaurantCreate, RestaurantRead
 from app.schemas.booking import AvailableTablesResponse, AvailableTable, AvailableTimeSlotsResponse
 from app.models.restaurant import Restaurant
 from app.models.table import Table
-from app.models.booking import Booking, BookingStatus
+from app.models.booking import Booking
 from app.database import SessionLocal
 from app.auth import get_current_admin, get_current_active_user
 from app.utils.time_slots import get_available_time_slots
@@ -217,7 +217,7 @@ def get_restaurant_available_tables(
         and_(
             Booking.date == date,
             Booking.time == time,
-            Booking.status == BookingStatus.active
+            Booking.status == "active"
         )
     ).all()
     

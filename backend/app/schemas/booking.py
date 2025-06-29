@@ -1,14 +1,6 @@
 from pydantic import BaseModel
-from enum import Enum
 from datetime import date, time
 from typing import Optional, List
-from app.models.booking import BookingStatus
-
-
-class BookingStatus(str, Enum):
-    active = "active"
-    cancelled = "cancelled"
-    completed = "completed"
 
 
 class BookingBase(BaseModel):
@@ -25,7 +17,7 @@ class BookingRead(BookingBase):
     id: int
     user_id: int
     table_id: int
-    status: BookingStatus
+    status: str
 
     class Config:
         orm_mode = True

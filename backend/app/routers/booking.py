@@ -4,7 +4,7 @@ from sqlalchemy import and_, or_
 from typing import List
 from datetime import date, time
 from app.schemas.booking import BookingCreate, BookingRead
-from app.models.booking import Booking, BookingStatus
+from app.models.booking import Booking
 from app.models.table import Table
 from app.models.restaurant import Restaurant
 from app.database import SessionLocal
@@ -37,7 +37,7 @@ def check_table_availability(db: Session, table_id: int, booking_date: date, boo
             Booking.table_id == table_id,
             Booking.date == booking_date,
             Booking.time == booking_time,
-            Booking.status == BookingStatus.active,
+            Booking.status == "active",
             Booking.id != booking_id if booking_id else True
         )
     ).first()
@@ -64,7 +64,7 @@ def create_booking(booking: BookingCreate, db: Session = Depends(get_db), user=D
         date=booking.date,
         time=booking.time,
         guests=booking.guests,
-        status=BookingStatus.active
+        status="active"
     )
     db.add(db_booking)
     db.commit()
@@ -117,7 +117,7 @@ def delete_booking(booking_id: int, db: Session = Depends(get_db), user=Depends(
         raise HTTPException(status_code=404, detail="Booking not found")
     
     # Мягкое удаление - меняем статус на отмененный
-    booking.status = BookingStatus.cancelled
+    booking.status = "cancelled"
     db.commit()
     return {"ok": True}
 
@@ -139,7 +139,7 @@ def get_available_tables(restaurant_id: int, date: date, time: time, guests: int
         and_(
             Booking.date == date,
             Booking.time == time,
-            Booking.status == BookingStatus.active
+            Booking.status == "active"
         )
     ).all()
     
