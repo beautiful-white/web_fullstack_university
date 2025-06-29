@@ -9,8 +9,8 @@ class Restaurant(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
     location = Column(String, nullable=False)
-    latitude = Column(Float, nullable=True)  # Широта
-    longitude = Column(Float, nullable=True)  # Долгота
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
     cuisine = Column(String, nullable=False)
     price_range = Column(String, nullable=False)
     description = Column(Text)

@@ -125,8 +125,6 @@ export default function ReviewsSection({ restaurantId }) {
                     </button>
                 )}
             </div>
-
-            {/* Форма отзыва */}
             {showForm && (
                 <div className={styles.reviewForm}>
                     <h3 className={styles.formTitle}>
@@ -186,7 +184,6 @@ export default function ReviewsSection({ restaurantId }) {
                 </div>
             )}
 
-            {/* Отзыв пользователя */}
             {userReview && !showForm && (
                 <div className={styles.userReview}>
                     <div className={styles.userReviewHeader}>
@@ -223,7 +220,6 @@ export default function ReviewsSection({ restaurantId }) {
                 </div>
             )}
 
-            {/* Список отзывов */}
             <div className={styles.reviewsList}>
                 {reviews.length === 0 ? (
                     <div className={styles.noReviews}>

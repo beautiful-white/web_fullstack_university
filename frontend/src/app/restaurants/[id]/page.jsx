@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
-import api from "../../../shared/api";
+import api from "@/shared/api";
 import { useParams, useRouter } from "next/navigation";
-import { useAuth } from "../../../shared/store";
+import { useAuth } from "@/shared/store";
 import styles from "./restaurant-detail.module.css";
 import ReviewsSection from "./components/ReviewsSection";
 import Footer from "../../components/Footer";
@@ -241,7 +241,6 @@ export default function RestaurantDetailPage() {
                         </div>
                     </div>
 
-                    {/* Галерея фотографий */}
                     {galleryImages.length > 0 && (
                         <div className={styles.gallerySection}>
                             <h2>Фотографии ресторана</h2>
@@ -270,7 +269,6 @@ export default function RestaurantDetailPage() {
                         </div>
                     )}
 
-                    {/* Меню ресторана */}
                     {menuImages.length > 0 && (
                         <div className={styles.menuSection}>
                             <h2>Меню ресторана</h2>
@@ -300,7 +298,6 @@ export default function RestaurantDetailPage() {
                     )}
                 </div>
 
-                {/* Секция бронирования */}
                 <div className={styles.bookingSection}>
                     <h2 className={styles.bookingTitle}>Забронировать столик</h2>
                     <form onSubmit={handleBooking} className={styles.bookingForm}>
@@ -348,7 +345,7 @@ export default function RestaurantDetailPage() {
                             </select>
                         </div>
                     </form>
-                    {/* Выбор столика */}
+
                     {bookingData.date && bookingData.time && (
                         <div className={styles.tablesSection}>
                             <h3 className={styles.tablesTitle}>Доступные столики</h3>
@@ -384,7 +381,6 @@ export default function RestaurantDetailPage() {
                     </button>
                 </div>
 
-                {/* Секция отзывов */}
                 <ReviewsSection restaurantId={restaurant.id} />
             </div>
             <Footer />

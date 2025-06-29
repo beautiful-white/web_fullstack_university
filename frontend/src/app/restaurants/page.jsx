@@ -20,7 +20,6 @@ function haversine(lat1, lon1, lat2, lon2) {
     return R * c;
 }
 
-// Функция для форматирования расстояния
 function formatDistance(distance) {
     if (distance < 1) {
         return `${(distance * 1000).toFixed(0)} м`;
@@ -132,11 +131,17 @@ export default function RestaurantsPage() {
         fetchRestaurants();
     };
 
-    let filteredRestaurants = restaurants.filter(restaurant =>
-        restaurant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        restaurant.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        restaurant.cuisine.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    let filteredRestaurants = restaurants
+        .filter(restaurant =>
+            restaurant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            restaurant.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            restaurant.cuisine.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+        .filter(restaurant =>
+            (!cuisineFilter || restaurant.cuisine === cuisineFilter) &&
+            (!priceFilter || restaurant.price_range === priceFilter) &&
+            (!minRating || (restaurant.rating && restaurant.rating >= parseFloat(minRating)))
+        );
 
     if (useLocation && userCoords) {
         filteredRestaurants = filteredRestaurants
@@ -150,17 +155,8 @@ export default function RestaurantsPage() {
             .filter(r => r.distance !== null)
             .sort((a, b) => a.distance - b.distance);
     } else {
-        const vladivostokCoords = { latitude: 43.1198, longitude: 131.8869 };
-        filteredRestaurants = filteredRestaurants
-            .map(r => {
-                if (r.latitude && r.longitude) {
-                    const distance = haversine(vladivostokCoords.latitude, vladivostokCoords.longitude, r.latitude, r.longitude);
-                    return { ...r, distance };
-                }
-                return { ...r, distance: null };
-            })
-            .filter(r => r.distance !== null)
-            .sort((a, b) => a.distance - b.distance);
+        // По умолчанию сортируем по id
+        filteredRestaurants = filteredRestaurants.sort((a, b) => a.id - b.id);
     }
 
     const cuisines = [...new Set(restaurants.map(r => r.cuisine))];
@@ -197,8 +193,6 @@ export default function RestaurantsPage() {
                     <h1 className={styles.title}>Рестораны Владивостока</h1>
                     <p className={styles.subtitle}>Найдите идеальное место для ужина</p>
                 </div>
-
-                {/* Фильтры */}
                 <div className={styles.filters}>
                     <div className={styles.filterGrid}>
                         <div className={styles.filterItem}>
@@ -270,16 +264,14 @@ export default function RestaurantsPage() {
                             )}
                         </div>
                     </div>
-                    
-                    {/* Сообщение об ошибке геолокации */}
+
                     {locationError && (
                         <div className={styles.errorMessage}>
                             <span className={styles.errorIcon}>⚠️</span>
                             {locationError}
                         </div>
                     )}
-                    
-                    {/* Кнопка сброса фильтров */}
+
                     <div className={styles.resetFiltersContainer}>
                         <button 
                             className={styles.resetFiltersButton}
@@ -291,7 +283,6 @@ export default function RestaurantsPage() {
                     </div>
                 </div>
 
-                {/* Список ресторанов */}
                 <div className={styles.restaurantsGrid}>
                     {filteredRestaurants.length === 0 ? (
                         <div className={styles.noResults}>

@@ -52,7 +52,6 @@ export default function AdminPage() {
         } else if (!authLoading && (!user || user.role !== "admin")) {
             router.push("/login");
         }
-        // eslint-disable-next-line
     }, [user, authLoading]);
 
     const fetchData = async () => {
@@ -246,8 +245,7 @@ export default function AdminPage() {
                     {activeTab === "restaurants" && (
                         <div className={styles.section}>
                             <h2>Управление ресторанами</h2>
-                            
-                            {/* Форма создания/редактирования ресторана */}
+
                             <div className={styles.createForm}>
                                 <h3>{editingRestaurant ? "Редактировать ресторан" : "Создать новый ресторан"}</h3>
                                 <form onSubmit={editingRestaurant ? handleUpdateRestaurant : handleCreateRestaurant}>
@@ -361,8 +359,6 @@ export default function AdminPage() {
                                         className={styles.textarea}
                                         rows="3"
                                     />
-                                    
-                                    {/* Главное изображение */}
                                     <div className={styles.imageSection}>
                                         <h4>Главное изображение</h4>
                                         <div className={styles.imageInput}>
@@ -416,7 +412,6 @@ export default function AdminPage() {
                                         <div style={{ color: '#888', marginTop: 8 }}>Загрузка изображения...</div>
                                     )}
 
-                                    {/* Галерея изображений */}
                                     <div className={styles.imageSection}>
                                         <h4>Галерея изображений</h4>
                                         <div className={styles.imageInput}>
@@ -485,7 +480,6 @@ export default function AdminPage() {
                                         </p>
                                     </div>
 
-                                    {/* Изображения меню */}
                                     <div className={styles.imageSection}>
                                         <h4>Изображения меню</h4>
                                         <div className={styles.imageInput}>
@@ -571,7 +565,6 @@ export default function AdminPage() {
                                 </form>
                             </div>
 
-                            {/* Список ресторанов */}
                             <div className={styles.restaurantsList}>
                                 <h3>Существующие рестораны</h3>
                                 {restaurants.map(restaurant => (
