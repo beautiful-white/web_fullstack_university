@@ -1,42 +1,442 @@
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 20px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.header {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 20px;
+  border-radius: 15px;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .title {
-  font-size: 2.5rem;
+  margin: 0;
+  color: #2d3748;
+  font-size: 2rem;
   font-weight: 700;
-  color: #333;
-  margin-bottom: 2rem;
 }
 
-.loading {
-  text-align: center;
-  font-size: 1.2rem;
-  color: #666;
-  padding: 4rem 0;
+.userInfo {
+  background: #667eea;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 10px;
+  border-radius: 15px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.tab {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  background: transparent;
+  color: #4a5568;
+  font-weight: 500;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tab:hover {
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+}
+
+.activeTab {
+  background: #667eea;
+  color: white;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 .content {
-  background: white;
-  border-radius: 16px;
-  padding: 2rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-}
-
-.section {
-  margin-bottom: 2rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
 }
 
 .section h2 {
-  font-size: 1.5rem;
+  margin: 0 0 30px 0;
+  color: #2d3748;
+  font-size: 1.8rem;
   font-weight: 600;
-  color: #333;
-  margin-bottom: 1rem;
 }
 
-.section p {
-  color: #666;
-  line-height: 1.6;
+.createForm {
+  background: #f7fafc;
+  padding: 25px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  border: 2px solid #e2e8f0;
+}
+
+.createForm h3 {
+  margin: 0 0 20px 0;
+  color: #2d3748;
+  font-size: 1.3rem;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.input, .select, .textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background: white;
+  color: #333;
+}
+
+.input::placeholder, .textarea::placeholder {
+  color: #999;
+}
+
+.input:focus, .select:focus, .textarea:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.submitButton {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.submitButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.restaurantsList h3 {
+  margin: 0 0 20px 0;
+  color: #2d3748;
+  font-size: 1.3rem;
+}
+
+.restaurantCard {
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.restaurantCard:hover {
+  border-color: #667eea;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.1);
+}
+
+.restaurantInfo h4 {
+  margin: 0 0 10px 0;
+  color: #2d3748;
+  font-size: 1.2rem;
+}
+
+.restaurantInfo p {
+  margin: 5px 0;
+  color: #4a5568;
+  font-size: 14px;
+}
+
+.restaurantActions {
+  display: flex;
+  gap: 10px;
+}
+
+.editButton, .deleteButton {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.editButton {
+  background: #4299e1;
+  color: white;
+}
+
+.editButton:hover {
+  background: #3182ce;
+}
+
+.deleteButton {
+  background: #f56565;
+  color: white;
+}
+
+.deleteButton:hover {
+  background: #e53e3e;
+}
+
+.bookingsList {
+  display: grid;
+  gap: 15px;
+}
+
+.bookingCard {
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.bookingCard:hover {
+  border-color: #667eea;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.1);
+}
+
+.bookingInfo h4 {
+  margin: 0 0 10px 0;
+  color: #2d3748;
+  font-size: 1.2rem;
+}
+
+.bookingInfo p {
+  margin: 5px 0;
+  color: #4a5568;
+  font-size: 14px;
+}
+
+.bookingActions {
+  display: flex;
+  gap: 10px;
+}
+
+.completeButton, .cancelButton {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.completeButton {
+  background: #48bb78;
+  color: white;
+}
+
+.completeButton:hover {
+  background: #38a169;
+}
+
+.cancelButton {
+  background: #f56565;
+  color: white;
+}
+
+.cancelButton:hover {
+  background: #e53e3e;
+}
+
+.tablesManagement {
+  background: #f7fafc;
+  padding: 25px;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+}
+
+.tablesManagement h3 {
+  margin: 0 0 20px 0;
+  color: #2d3748;
+  font-size: 1.3rem;
+}
+
+.tableForm {
+  display: flex;
+  gap: 15px;
+  align-items: end;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #4a5568;
+  cursor: pointer;
+}
+
+.checkboxLabel input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #667eea;
+}
+
+.tablesList {
+  margin-top: 30px;
+}
+
+.tablesList h3 {
+  margin: 0 0 20px 0;
+  color: #2d3748;
+  font-size: 1.3rem;
+}
+
+.tableCard {
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.tableCard:hover {
+  border-color: #667eea;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.1);
+}
+
+.tableInfo h4 {
+  margin: 0 0 10px 0;
+  color: #2d3748;
+  font-size: 1.2rem;
+}
+
+.tableInfo p {
+  margin: 5px 0;
+  color: #4a5568;
+  font-size: 14px;
+}
+
+.tableActions {
+  display: flex;
+  gap: 10px;
+}
+
+.available {
+  color: #48bb78;
+  font-weight: 600;
+}
+
+.unavailable {
+  color: #f56565;
+  font-weight: 600;
+}
+
+.availableButton {
+  background: #48bb78;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.availableButton:hover {
+  background: #38a169;
+}
+
+.unavailableButton {
+  background: #ed8936;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.unavailableButton:hover {
+  background: #dd6b20;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 1.2rem;
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
+  }
+  
+  .header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .tabs {
+    flex-direction: column;
+  }
+  
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .restaurantCard, .bookingCard {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .restaurantActions, .bookingActions {
+    justify-content: center;
+  }
+  
+  .tableForm {
+    flex-direction: column;
+  }
 } 

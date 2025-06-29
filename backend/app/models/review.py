@@ -15,4 +15,5 @@ class Review(Base):
     comment = Column(Text)
     created_at = Column(DateTime, default=datetime.utcnow)
     # relationships
+    user = relationship("User", back_populates="reviews")
     restaurant = relationship("Restaurant", back_populates="reviews")

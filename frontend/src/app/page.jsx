@@ -1,192 +1,110 @@
 "use client";
-import { useState, useEffect } from "react";
-import { useAuth } from "../shared/store";
-import api from "../shared/api";
 import { useRouter } from "next/navigation";
+import { useAuth } from "../shared/store";
 import styles from "./page.module.css";
 
-export default function Home() {
-  const { user } = useAuth();
-  const router = useRouter();
-  const [restaurants, setRestaurants] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [cuisineFilter, setCuisineFilter] = useState("");
-  const [priceFilter, setPriceFilter] = useState("");
-  const [ratingFilter, setRatingFilter] = useState("");
+export default function HomePage() {
+    const router = useRouter();
+    const { user } = useAuth();
 
-  useEffect(() => {
-    fetchRestaurants();
-  }, []);
+    return (
+        <div className={styles.container}>
+            <div className={styles.hero}>
+                <div className={styles.heroContent}>
+                    <h1 className={styles.title}>
+                        Добро пожаловать в мир изысканной кухни
+                    </h1>
+                    <p className={styles.subtitle}>
+                        Откройте для себя лучшие рестораны Владивостока и забронируйте столик в один клик
+                    </p>
+                    <div className={styles.heroButtons}>
+                        <button 
+                            className={styles.primaryButton}
+                            onClick={() => router.push("/restaurants")}
+                        >
+                            Найти ресторан
+                        </button>
+                        {!user && (
+                            <button 
+                                className={styles.secondaryButton}
+                                onClick={() => router.push("/register")}
+                            >
+                                Зарегистрироваться
+                            </button>
+                        )}
+                    </div>
+                </div>
+                <div className={styles.heroImage}>
+                    <div className={styles.imagePlaceholder}>
+                        🍽️
+                    </div>
+                </div>
+            </div>
 
-  const fetchRestaurants = async () => {
-    try {
-      const response = await api.get("/restaurants/");
-      setRestaurants(response.data);
-    } catch (error) {
-      console.error("Error fetching restaurants:", error);
-    }
-  };
+            <div className={styles.features}>
+                <h2 className={styles.featuresTitle}>Почему выбирают нас?</h2>
+                <div className={styles.featuresGrid}>
+                    <div className={styles.feature}>
+                        <div className={styles.featureIcon}>🔍</div>
+                        <h3>Удобный поиск</h3>
+                        <p>Найдите ресторан по кухне, цене и рейтингу</p>
+                    </div>
+                    <div className={styles.feature}>
+                        <div className={styles.featureIcon}>📅</div>
+                        <h3>Быстрое бронирование</h3>
+                        <p>Забронируйте столик за несколько секунд</p>
+                    </div>
+                    <div className={styles.feature}>
+                        <div className={styles.featureIcon}>⭐</div>
+                        <h3>Отзывы и рейтинги</h3>
+                        <p>Читайте отзывы и выбирайте лучшие места</p>
+                    </div>
+                    <div className={styles.feature}>
+                        <div className={styles.featureIcon}>📱</div>
+                        <h3>Мобильная версия</h3>
+                        <p>Удобно использовать на любом устройстве</p>
+                    </div>
+                </div>
+            </div>
 
-  const filteredRestaurants = restaurants.filter((restaurant) => {
-    const matchesSearch = restaurant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         restaurant.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCuisine = !cuisineFilter || restaurant.cuisine === cuisineFilter;
-    const matchesPrice = !priceFilter || restaurant.price_range === priceFilter;
-    const matchesRating = !ratingFilter || restaurant.rating >= parseInt(ratingFilter);
-    
-    return matchesSearch && matchesCuisine && matchesPrice && matchesRating;
-  });
-
-  const cuisines = [...new Set(restaurants.map(r => r.cuisine))];
-  const priceRanges = [...new Set(restaurants.map(r => r.price_range))];
-
-  const renderStars = (rating) => {
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      stars.push(
-        <span key={i} className={i <= rating ? styles.starFilled : styles.starEmpty}>
-          ★
-        </span>
-      );
-    }
-    return stars;
-  };
-
-  return (
-    <div className={styles.container}>
-      <header className={styles.header}>
-        <div className={styles.headerContent}>
-          <div className={styles.logo}>
-            <span className={styles.logoIcon}>🍽️</span>
-            <h1>Ресторанный сервис</h1>
-          </div>
-          <nav className={styles.nav}>
-            {user ? (
-              <>
-                <button 
-                  className={styles.navButton}
-                  onClick={() => router.push("/bookings")}
-                >
-                  <span className={styles.navIcon}>📅</span>
-                  Мои брони
-                </button>
-                <button 
-                  className={styles.navButton}
-                  onClick={() => router.push("/profile")}
-                >
-                  <span className={styles.navIcon}>👤</span>
-                  {user.email}
-                </button>
-              </>
-            ) : (
-              <button 
-                className={styles.navButton}
-                onClick={() => router.push("/login")}
-              >
-                Войти
-              </button>
+            {!user && (
+                <div className={styles.cta}>
+                    <h2>Готовы начать?</h2>
+                    <p>Зарегистрируйтесь и получите доступ ко всем возможностям</p>
+                    <button 
+                        className={styles.ctaButton}
+                        onClick={() => router.push("/register")}
+                    >
+                        Создать аккаунт
+                    </button>
+                </div>
             )}
-          </nav>
-        </div>
-      </header>
 
-      <main className={styles.main}>
-        <div className={styles.hero}>
-          <h2 className={styles.heroTitle}>Найдите идеальный ресторан</h2>
-        </div>
-
-        {/* Фильтры */}
-        <div className={styles.filters}>
-          <div className={styles.filterGrid}>
-            <div className={styles.filterItem}>
-              <input
-                type="text"
-                placeholder="Поиск ресторанов..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className={styles.searchInput}
-              />
-            </div>
-            <div className={styles.filterItem}>
-              <select
-                value={cuisineFilter}
-                onChange={(e) => setCuisineFilter(e.target.value)}
-                className={styles.select}
-              >
-                <option value="">Все кухни</option>
-                {cuisines.map((cuisine) => (
-                  <option key={cuisine} value={cuisine}>
-                    {cuisine}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className={styles.filterItem}>
-              <select
-                value={priceFilter}
-                onChange={(e) => setPriceFilter(e.target.value)}
-                className={styles.select}
-              >
-                <option value="">Любая цена</option>
-                {priceRanges.map((price) => (
-                  <option key={price} value={price}>
-                    {price}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className={styles.filterItem}>
-              <select
-                value={ratingFilter}
-                onChange={(e) => setRatingFilter(e.target.value)}
-                className={styles.select}
-              >
-                <option value="">Любой рейтинг</option>
-                <option value="4">4+ звезды</option>
-                <option value="3">3+ звезды</option>
-                <option value="2">2+ звезды</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        {/* Список ресторанов */}
-        <div className={styles.restaurantsGrid}>
-          {filteredRestaurants.map((restaurant) => (
-            <div 
-              key={restaurant.id} 
-              className={styles.restaurantCard}
-              onClick={() => router.push(`/restaurants/${restaurant.id}`)}
-            >
-              <div className={styles.cardImage}>
-                <img 
-                  src={restaurant.image_url || "https://via.placeholder.com/400x200?text=Ресторан"} 
-                  alt={restaurant.name}
-                />
-              </div>
-              <div className={styles.cardContent}>
-                <h3 className={styles.restaurantName}>{restaurant.name}</h3>
-                <p className={styles.restaurantDescription}>{restaurant.description}</p>
-                <div className={styles.rating}>
-                  {renderStars(restaurant.rating)}
-                  <span className={styles.ratingText}>({restaurant.rating})</span>
+            {/* Footer */}
+            <div className={styles.footer}>
+                <div className={styles.footerContent}>
+                    <div className={styles.footerSection}>
+                        <h3>О нас</h3>
+                        <p>Мы помогаем жителям и гостям Владивостока находить лучшие рестораны города</p>
+                    </div>
+                    <div className={styles.footerSection}>
+                        <h3>Навигация</h3>
+                        <ul>
+                            <li><button onClick={() => router.push("/restaurants")}>Рестораны</button></li>
+                            {user && <li><button onClick={() => router.push("/bookings")}>Мои брони</button></li>}
+                            {!user && <li><button onClick={() => router.push("/login")}>Войти</button></li>}
+                        </ul>
+                    </div>
+                    <div className={styles.footerSection}>
+                        <h3>Контакты</h3>
+                        <p>📧 info@vladivostok-restaurants.ru</p>
+                        <p>📞 +7 (423) 123-45-67</p>
+                    </div>
                 </div>
-                <div className={styles.tags}>
-                  <span className={styles.tag}>{restaurant.cuisine}</span>
-                  <span className={styles.tagOutline}>{restaurant.price_range}</span>
+                <div className={styles.footerBottom}>
+                    <p>&copy; 2024 Рестораны Владивостока. Все права защищены.</p>
                 </div>
-                <p className={styles.address}>{restaurant.address}</p>
-              </div>
             </div>
-          ))}
         </div>
-
-        {filteredRestaurants.length === 0 && (
-          <div className={styles.emptyState}>
-            <p>Рестораны не найдены</p>
-          </div>
-        )}
-      </main>
-    </div>
-  );
+    );
 }
