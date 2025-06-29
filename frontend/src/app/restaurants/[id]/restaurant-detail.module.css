@@ -48,7 +48,6 @@
   color: #000;
 }
 
-/* Hero Section */
 .heroSection {
   position: relative;
   height: 500px;
@@ -243,7 +242,7 @@
 .menuMainImage {
   width: 100%;
   height: auto;
-  max-height: 400px;
+  max-height: 900px;
   object-fit: contain;
   background: #fff;
   transition: transform 0.3s;

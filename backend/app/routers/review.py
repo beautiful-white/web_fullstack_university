@@ -77,6 +77,19 @@ def get_reviews_for_restaurant(restaurant_id: int, db: Session = Depends(get_db)
     return reviews
 
 
+@router.get("/restaurants/{restaurant_id}/reviews", response_model=List[ReviewRead])
+def get_restaurant_reviews(restaurant_id: int, db: Session = Depends(get_db)):
+    reviews = db.query(Review).filter(
+        Review.restaurant_id == restaurant_id
+    ).order_by(Review.created_at.desc()).all()
+    
+    for review in reviews:
+        if review.user:
+            review.user_name = review.user.name
+    
+    return reviews
+
+
 @router.put("/{review_id}", response_model=ReviewRead)
 def update_review(
     review_id: int, 

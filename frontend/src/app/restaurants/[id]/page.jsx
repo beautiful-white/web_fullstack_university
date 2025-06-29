@@ -32,11 +32,11 @@ export default function RestaurantDetailPage() {
     }, [params.id]);
 
     const fetchRestaurant = async () => {
+        setLoading(true);
         try {
             const response = await api.get(`/restaurants/${params.id}`);
             setRestaurant(response.data);
         } catch (error) {
-            console.error("Error fetching restaurant:", error);
         } finally {
             setLoading(false);
         }
@@ -49,11 +49,6 @@ export default function RestaurantDetailPage() {
             return;
         }
         try {
-            console.log("Запрашиваем временные слоты для:", {
-                date: bookingData.date,
-                guests: bookingData.guests
-            });
-            
             const response = await api.get(`/restaurants/${params.id}/available-time-slots`, {
                 params: {
                     date: bookingData.date,
@@ -61,12 +56,9 @@ export default function RestaurantDetailPage() {
                 }
             });
             
-            console.log("Получены временные слоты:", response.data);
-            
             setAvailableTimeSlots(response.data.time_slots);
             setBookingData((prev) => ({ ...prev, time: "", table_id: null }));
         } catch (error) {
-            console.error("Ошибка при получении временных слотов:", error);
             setAvailableTimeSlots([]);
             setBookingData((prev) => ({ ...prev, time: "", table_id: null }));
         }

@@ -16,5 +16,4 @@ def get_db():
 
 @router.post("/register", response_model=UserRead)
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
-    # TODO: Реализация регистрации пользователя
     return UserRead(id=1, email=user.email, name=user.name, role=user.role)

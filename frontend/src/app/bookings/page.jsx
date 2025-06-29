@@ -25,7 +25,6 @@ export default function BookingsPage() {
             const response = await api.get("/bookings/");
             setBookings(response.data);
         } catch (error) {
-            console.error("Error fetching bookings:", error);
             if (error.response?.status === 401) {
                 setBookings([]);
             }
@@ -39,7 +38,6 @@ export default function BookingsPage() {
             await api.delete(`/bookings/${bookingId}`);
             fetchBookings();
         } catch (error) {
-            // Ошибка при отмене бронирования, можно обработать иначе
         }
     };
 

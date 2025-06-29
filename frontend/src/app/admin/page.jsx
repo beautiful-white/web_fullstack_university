@@ -39,8 +39,9 @@ export default function AdminPage() {
     }, [user, router]);
 
     const fetchData = async () => {
+        setLoading(true);
         try {
-            const bookingsUrl = user && user.role === "admin" ? "/bookings/all" : "/bookings/";
+            const bookingsUrl = user.role === "admin" ? "/bookings/" : `/bookings/?user_id=${user.id}`;
             const [restaurantsRes, bookingsRes] = await Promise.all([
                 api.get("/restaurants/"),
                 api.get(bookingsUrl)
@@ -48,7 +49,6 @@ export default function AdminPage() {
             setRestaurants(restaurantsRes.data);
             setBookings(bookingsRes.data);
         } catch (error) {
-            console.error("Error fetching data:", error);
         } finally {
             setLoading(false);
         }
@@ -83,7 +83,6 @@ export default function AdminPage() {
             });
             fetchData();
         } catch (error) {
-            console.error("Error creating restaurant:", error);
         }
     };
 
@@ -104,7 +103,6 @@ export default function AdminPage() {
             setEditingRestaurant(null);
             fetchData();
         } catch (error) {
-            console.error("Error updating restaurant:", error);
         }
     };
 
@@ -116,7 +114,6 @@ export default function AdminPage() {
             await api.delete(`/restaurants/${restaurantId}`);
             fetchData();
         } catch (error) {
-            console.error("Error deleting restaurant:", error);
         }
     };
 
@@ -125,7 +122,6 @@ export default function AdminPage() {
             await api.put(`/bookings/${bookingId}`, { status });
             fetchData();
         } catch (error) {
-            console.error("Error updating booking:", error);
         }
     };
 
@@ -376,7 +372,6 @@ export default function AdminPage() {
                                                                     image_url: response.data.image_url
                                                                 });
                                                             } catch (error) {
-                                                                console.error("Error uploading image:", error);
                                                             }
                                                         }
                                                     }}
@@ -431,7 +426,6 @@ export default function AdminPage() {
                                                                     gallery: [...(editingRestaurant.gallery || []), response.data.image_url]
                                                                 });
                                                             } catch (error) {
-                                                                console.error("Error uploading image:", error);
                                                             }
                                                         }
                                                     }}
@@ -500,7 +494,6 @@ export default function AdminPage() {
                                                                     menu_images: [...(editingRestaurant.menu_images || []), response.data.image_url]
                                                                 });
                                                             } catch (error) {
-                                                                console.error("Error uploading image:", error);
                                                             }
                                                         }
                                                     }}

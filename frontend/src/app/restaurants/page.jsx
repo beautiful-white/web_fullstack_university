@@ -53,20 +53,16 @@ export default function RestaurantsPage() {
     }, [cuisineFilter, priceFilter, minRating, useLocation, userCoords]);
 
     const fetchRestaurants = async (coords) => {
+        setLoading(true);
         try {
-            setLoading(true);
             const params = {};
-            if (cuisineFilter) params.cuisine = cuisineFilter;
-            if (priceFilter) params.price_range = priceFilter;
-            if (minRating) params.min_rating = parseFloat(minRating);
             if (coords) {
-                params.lat = coords.latitude;
-                params.lon = coords.longitude;
+                params.latitude = coords.latitude;
+                params.longitude = coords.longitude;
             }
             const response = await api.get("/restaurants/", { params });
             setRestaurants(response.data);
         } catch (error) {
-            console.error("Error fetching restaurants:", error);
         } finally {
             setLoading(false);
         }
@@ -136,7 +132,6 @@ export default function RestaurantsPage() {
         fetchRestaurants();
     };
 
-    // Фильтрация по поиску и радиусу
     let filteredRestaurants = restaurants.filter(restaurant =>
         restaurant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         restaurant.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
