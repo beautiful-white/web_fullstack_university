@@ -412,44 +412,7 @@ a.secondary {
   margin: 0;
 }
 
-/* CTA Section */
-.cta {
-  background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
-  color: white;
-  text-align: center;
-  padding: 80px 20px;
-}
 
-.cta h2 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin: 0 0 20px 0;
-}
-
-.cta p {
-  font-size: 1.2rem;
-  margin: 0 0 40px 0;
-  opacity: 0.9;
-}
-
-.ctaButton {
-  background: #667eea;
-  color: white;
-  border: none;
-  padding: 15px 40px;
-  border-radius: 10px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
-}
-
-.ctaButton:hover {
-  background: #5a67d8;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 30px rgba(102, 126, 234, 0.4);
-}
 
 /* Footer */
 .footerContent {
@@ -558,8 +521,13 @@ a.secondary {
     font-size: 1.1rem;
   }
   
+  .ctaButton {
+    padding: 12px 30px;
+    font-size: 1rem;
+  }
+  
   .about {
-    padding: 40px 0;
+    padding: 60px 20px;
   }
   
   .aboutContent h2 {
@@ -607,10 +575,6 @@ a.secondary {
 }
 
 @media (max-width: 768px) {
-  .cta p {
-    font-size: 1.1rem;
-  }
-  
   .about {
     padding: 60px 20px;
   }
@@ -656,12 +620,51 @@ a.secondary {
 .ctaSection {
   width: 100vw;
   margin-left: calc(50% - 50vw);
-  background: #fffbe6;
-  padding: 60px 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 80px 0;
+  color: white;
+  text-align: center;
 }
+
 .ctaContentWrap {
   max-width: 700px;
   margin: 0 auto;
   padding: 0 20px;
   text-align: center;
+}
+
+.ctaContentWrap h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 20px 0;
+  color: white;
+}
+
+.ctaContentWrap p {
+  font-size: 1.2rem;
+  margin: 0 0 40px 0;
+  opacity: 0.9;
+  color: white;
+  line-height: 1.6;
+}
+
+.ctaButton {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  padding: 15px 40px;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.ctaButton:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.2);
 }
